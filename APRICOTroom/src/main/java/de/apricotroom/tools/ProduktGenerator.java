@@ -28,7 +28,7 @@ public class ProduktGenerator {
 	public static void main(String[] args) {
 		ProduktGenerator pg = new ProduktGenerator();
 		pg.readFile(
-				"/Users/jurgenhochkoppler/Downloads/BootsFaces-Examples-master/Combobox/src/main/java/de/apricotroom/tools/masterlisteCopy.xls");
+				"/Users/jurgenhochkoppler/git/APRICOTroom/src/main/java/de/apricotroom/tools/masterlisteCopy.xls");
 	}
 
 	public void readFile(String filename) {

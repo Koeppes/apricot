@@ -7,39 +7,40 @@
 	xmlns:f="http://java.sun.com/jsf/core">
 
 <h:head>
-	<h:outputStylesheet library="themes"
-		name="#{themeSelectorBean.theme}.min.css"
-		rendered="#{themeSelectorBean.bootswatchTheme}"></h:outputStylesheet>
 </h:head>
-<h:body>
-	<b:container>
-		<h:form id="login">
-			<b:row>
-				<b:column col-lg="6" offset-lg="3">
-					<b:inputText id="username" value="#{loginBean.username}"
-						label="Benutzername" />
-					<b:message for="username" />
-					<b:inputSecret id="password" value="#{loginBean.password}"
-						label="Passwort" />
-					<b:message for="password" />
-				</b:column>
-			</b:row>
-			<b:row>
-				<b:column col-lg="6" offset-lg="3">
-					<b:panelGrid columns="2">
-						<b:buttonGroup>
-							<b:commandButton actionListener="#{loginBean.login}"
-								value="Anmelden" update="@form" />
-							<b:commandButton id="loginButton"
-								action="#{navigationController.moveToRegister}"
-								value="Registrieren" />
-						</b:buttonGroup>
-					</b:panelGrid>
-				</b:column>
-			</b:row>
-			<b:message />
-		</h:form>
 
-	</b:container>
+<h:body>
+	<b:panel look="success" title="Login">
+
+		<b:container>
+			<h:form id="login">
+				<b:row>
+					<b:column col-lg="6" offset-lg="3">
+						<b:inputText id="username" value="#{loginBean.username}"
+							label="Benutzername" />
+						<b:message for="username" />
+						<b:inputSecret id="password" value="#{loginBean.password}"
+							label="Passwort" />
+						<b:message for="password" />
+					</b:column>
+				</b:row>
+				<b:row>
+					<b:column col-lg="6" offset-lg="3">
+						<b:panelGrid columns="2">
+							<b:buttonGroup>
+								<b:commandButton actionListener="#{loginBean.login}"
+									value="Anmelden" update="@form" />
+								<b:commandButton id="loginButton"
+									action="#{navigationController.moveToRegister}"
+									value="Registrieren" />
+							</b:buttonGroup>
+						</b:panelGrid>
+					</b:column>
+				</b:row>
+				<b:message />
+			</h:form>
+
+		</b:container>
+	</b:panel>
 </h:body>
 </html>

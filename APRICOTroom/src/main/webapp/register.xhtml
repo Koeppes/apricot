@@ -12,38 +12,40 @@
 		rendered="#{themeSelectorBean.bootswatchTheme}"></h:outputStylesheet>
 </h:head>
 <h:body>
-	<b:container>
-		<h:form id="register">
-			<b:panelGrid columns="1">
-				<b:inputText id="name" value="#{registerBean.user.name}"
-					label="Vorname" />
-				<b:message for="name" />
-				<b:inputText id="surname" value="#{registerBean.user.surname}"
-					label="Nachname" />
-				<b:message for="surname" />
-				<b:inputText id="username" value="#{registerBean.user.username}"
-					label="Benutzername" />
-				<b:message for="username" />
-				<b:inputSecret id="password" value="#{registerBean.user.password}"
-					label="Passwort" />
-				<b:message for="password" />
-				<b:inputSecret id="password2" value="#{registerBean.password2}"
-					label="Passwort wiederholen" />
-				<b:message for="password2" />
-				<b:inputText id="email" value="#{registerBean.user.email}"
-					label="E-Mail" />
-				<b:message for="email" />
-			</b:panelGrid>
-			<b:buttonGroup>
-				<b:panelGrid columns="2">
-					<b:commandButton actionListener="#{registerBean.save}"
-						value="Speichern" update="@form" />
-					<b:commandButton id="loginButton"
-						action="#{navigationController.moveToLogin}" value="Login" />
+	<b:panel look="success" title="Registrieren">
+		<b:container>
+			<h:form id="register">
+				<b:panelGrid columns="1">
+					<b:inputText id="name" value="#{registerBean.user.name}"
+						label="Vorname" />
+					<b:message for="name" />
+					<b:inputText id="surname" value="#{registerBean.user.surname}"
+						label="Nachname" />
+					<b:message for="surname" />
+					<b:inputText id="username" value="#{registerBean.user.username}"
+						label="Benutzername" />
+					<b:message for="username" />
+					<b:inputSecret id="password" value="#{registerBean.user.password}"
+						label="Passwort" />
+					<b:message for="password" />
+					<b:inputSecret id="password2" value="#{registerBean.password2}"
+						label="Passwort wiederholen" />
+					<b:message for="password2" />
+					<b:inputText id="email" value="#{registerBean.user.email}"
+						label="E-Mail" />
+					<b:message for="email" />
 				</b:panelGrid>
-			</b:buttonGroup>
-			<b:message />
-		</h:form>
-	</b:container>
+				<b:buttonGroup>
+					<b:panelGrid columns="2">
+						<b:commandButton actionListener="#{registerBean.save}"
+							value="Speichern" update="@form" />
+						<b:commandButton id="loginButton"
+							action="#{navigationController.moveToLogin}" value="Login" />
+					</b:panelGrid>
+				</b:buttonGroup>
+				<b:message />
+			</h:form>
+		</b:container>
+	</b:panel>
 </h:body>
 </html>

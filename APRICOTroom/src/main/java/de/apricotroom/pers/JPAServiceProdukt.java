@@ -4,6 +4,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 import de.apricotroom.bo.Produkt;
 import de.apricotroom.bo.Lieferant;
@@ -66,5 +70,20 @@ public class JPAServiceProdukt extends JPAService {
 
 		return resultList;
 	}
-
+	public Produkt getProduktBySerial(String serial) {
+		Produkt l = null;
+		List<Produkt> result = null;
+		CriteriaBuilder qb = this.getEntityManager().getCriteriaBuilder();
+		CriteriaQuery<Produkt> c = qb.createQuery(Produkt.class);
+		Root<Produkt> p = c.from(Produkt.class);
+		Predicate condition = qb.equal(p.get("serialnumber"), serial);
+		c.where(condition);
+		TypedQuery<Produkt> q = this.getEntityManager().createQuery(c);
+		result = q.getResultList();
+		if (!result.isEmpty()) {
+			l = result.get(0);
+		}
+		return l;
+		
+	}
 }

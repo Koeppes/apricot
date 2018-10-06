@@ -19,7 +19,7 @@
 			<br />
 			<br />
 			<b:panelGrid columns="1">
-				<b:dataTable id="dataTable" value="#{productSearchBean.produkte}"
+				<b:dataTable id="dataTableProdukte" value="#{productSearchBean.produkte}"
 					var="produkt"
 					onselect="ajax:productSearchBean.onSelect(produkt, typeOfSelection, indexes);"
 					ondeselect="ajax:productSearchBean.onDeselect(produkt, typeOfSelection, indexes);"
@@ -53,8 +53,8 @@
 					<p>Produkt löschen?</p>
 					<b:row>
 						<b:column>
-							<b:button id="deleteButton" largeScreen="half" value="Abbrechen" dismiss="modal"
-								onclick="return false;" />
+							<b:button id="deleteButton" largeScreen="half" value="Abbrechen"
+								dismiss="modal" onclick="return false;" />
 							<b:commandButton largeScreen="half" update="@form"
 								actionListener="#{productSearchBean.deleteProdukt}"
 								onclick="return true;"

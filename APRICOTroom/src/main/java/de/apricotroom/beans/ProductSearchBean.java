@@ -153,10 +153,6 @@ public class ProductSearchBean {
 		navigateToEditor(p);
 	}
 
-	public void someListener() {
-		System.out.println("someListenr");
-	}
-
 	private void navigateToEditor(Produkt p) {
 		FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("selectedProdukt", p);
 		FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("selectedProduktCopy", p.copy());
@@ -173,7 +169,6 @@ public class ProductSearchBean {
 		} catch (Exception e) {
 			System.out.println(e);
 		}
-
 	}
 
 	public boolean deleteProdukt() {
