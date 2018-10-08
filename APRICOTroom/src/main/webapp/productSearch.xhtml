@@ -14,10 +14,6 @@
 <h:body>
 	<b:container>
 		<h:form id="productSearch">
-			<b:commandButton actionListener="#{productSearchBean.abmelden}"
-				value="Abmelden" update="@form" />
-			<br />
-			<br />
 			<b:panelGrid columns="1">
 				<b:dataTable id="dataTableProdukte" value="#{productSearchBean.produkte}"
 					var="produkt"

@@ -1,7 +1,9 @@
 package de.apricotroom.tools;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -18,6 +20,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import de.apricotroom.bo.Auswertung;
 import de.apricotroom.bo.Produkt;
 import de.apricotroom.pers.JPAServiceProdukt;
 
@@ -29,12 +32,31 @@ public class ProduktLister {
 
 	}
 
-	public Map<Produkt, Integer> readFile(FileInputStream fis) {
+	public Map<Produkt, Integer> readFile(Auswertung a) {
+		Map<Produkt, Integer> result = new HashMap<>();
+		ByteArrayInputStream bais = new ByteArrayInputStream(a.getData());
+		this.readFile(bais, result);
+		printResult(result);
+		return result;
+	}
+
+	public Map<Produkt, Integer> readFiles(List<Auswertung> list) {
+		Map<Produkt, Integer> result = new HashMap<>();
+		Iterator<Auswertung> it = list.iterator();
+		while (it.hasNext()) {
+			ByteArrayInputStream bais = new ByteArrayInputStream(it.next().getData());
+			this.readFile(bais, result);
+		}
+		printResult(result);
+		return result;
+	}
+
+	public Map<Produkt, Integer> readFile(InputStream fis, Map<Produkt, Integer> map) {
 		Map<Produkt, Integer> result = new HashMap<>();
 		try {
 			Workbook workbook = new HSSFWorkbook(fis);
 			workbook.close();
-			result = this.readList(workbook);
+			result = this.readList(workbook, map);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -48,7 +70,7 @@ public class ProduktLister {
 			FileInputStream excelFile = new FileInputStream(filename);
 			Workbook workbook = new HSSFWorkbook(excelFile);
 			workbook.close();
-			result = this.readList(workbook);
+			result = this.readList(workbook, result);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -71,8 +93,7 @@ public class ProduktLister {
 
 	}
 
-	private Map<Produkt, Integer> readList(Workbook workbook) {
-		Map<Produkt, Integer> map = new HashMap<Produkt, Integer>();
+	private Map<Produkt, Integer> readList(Workbook workbook, Map<Produkt, Integer> map) {
 		Produkt p = null;
 		String serial = "";
 		Integer count = 1;
@@ -88,7 +109,6 @@ public class ProduktLister {
 						cell.setCellType(CellType.STRING);
 						String cell1Value = (String) cell.getStringCellValue();
 						serial = cell1Value;
-						// System.out.println(serial);
 					}
 					// serialPart2
 					if (j == 1) {

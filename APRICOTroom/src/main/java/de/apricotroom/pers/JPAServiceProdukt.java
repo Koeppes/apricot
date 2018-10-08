@@ -51,7 +51,6 @@ public class JPAServiceProdukt extends JPAService {
 		service.persist(p);
 		
 		List<Produkt> produkte = service.getProdukte();
-		System.out.println(produkte);
 		
 		
 	}	

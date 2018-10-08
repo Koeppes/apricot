@@ -1,3 +1,4 @@
+
 package de.apricotroom.beans;
 
 import java.util.ArrayList;
@@ -119,8 +120,6 @@ public class ProductSearchBean {
 	}
 
 	public void onSelect(Produkt p, String typeOfSelection, String indexes) {
-		// System.out.println("OnSelect:" + car + " typeOfSelection: " +
-		// typeOfSelection + " indexes: " + indexes);
 		setSelectedProdukt(p);
 		selectedRows = indexes;
 		this.setButtonsDisabled(false);
@@ -136,7 +135,12 @@ public class ProductSearchBean {
 	}
 
 	public void editProdukt() {
-		navigateToEditor(this.getSelectedProdukt());
+		if (this.getSelectedProdukt() != null) {
+			navigateToEditor(this.getSelectedProdukt());
+		} else {
+			FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", "Bitte einen Artikel auswählen!");
+			FacesContext.getCurrentInstance().addMessage(null, success);
+		}
 	}
 
 	public boolean produktSelected() {
@@ -160,6 +164,8 @@ public class ProductSearchBean {
 				this.getServiceProdukt());
 		FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("serviceLieferant",
 				this.getServiceLieferant());
+		FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("productSearchBean",
+				this);
 
 		FacesContext fc = FacesContext.getCurrentInstance();
 		NavigationHandler nav = fc.getApplication().getNavigationHandler();
@@ -182,13 +188,18 @@ public class ProductSearchBean {
 	}
 
 	public void copyProdukt() {
+		if (this.getSelectedProdukt() != null) {
+			Produkt copy = this.getSelectedProdukt().copy();
+			copy.setId(null);
+			this.getProdukte().add(copy);
+			this.navigateToEditor(copy);
+		} else {
+			FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", "Bitte einen Artikel auswählen!");
+			FacesContext.getCurrentInstance().addMessage(null, success);
+		}
 	}
 
 	public void save() {
 		getServiceProdukt().persistProdukte(this.getProdukte());
-	}
-
-	public void capitalizeText() {
-		System.out.println("capitalizeText");
 	}
 }

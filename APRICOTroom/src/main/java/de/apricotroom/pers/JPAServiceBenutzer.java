@@ -56,7 +56,6 @@ public class JPAServiceBenutzer extends JPAService {
 		JPAServiceBenutzer service = new JPAServiceBenutzer();
 		service.persist(u);		
 		List<Benutzer> users = service.getAllBenutzer();
-		System.out.println(users);
 	}
 
 }

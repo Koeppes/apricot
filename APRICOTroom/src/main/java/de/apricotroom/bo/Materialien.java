@@ -23,7 +23,7 @@ public enum Materialien {
 //		return Stream.of(Kategorien.values()).filter(value -> value.getValue().equals(v)).findFirst().orElse(null);
 		for(int i = 0; i< Materialien.values().length && result == null; i++) {
 			Materialien m = Materialien.values()[i];
-			if(m.getValue().equals(v)) {
+			if(m.getValue().equalsIgnoreCase(v)) {
 				result = m;
 			}
 		}

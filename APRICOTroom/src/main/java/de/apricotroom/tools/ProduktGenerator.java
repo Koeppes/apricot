@@ -27,8 +27,7 @@ public class ProduktGenerator {
 
 	public static void main(String[] args) {
 		ProduktGenerator pg = new ProduktGenerator();
-		pg.readFile(
-				"/Users/jurgenhochkoppler/git/APRICOTroom/src/main/java/de/apricotroom/tools/masterlisteCopy.xls");
+		pg.readFile("/Users/jurgenhochkoppler/git/APRICOTroom/src/main/java/de/apricotroom/tools/masterlisteCopy.xls");
 	}
 
 	public void readFile(String filename) {
@@ -150,12 +149,12 @@ public class ProduktGenerator {
 					}
 					// lieferant
 					if (j == 10) {
-						if (cell.getCellType() == CellType.NUMERIC.getCode()) {
-							int nr = (int) cell.getNumericCellValue();
-							if (nr != 0) {
-								Lieferant l = serviceLieferant.getLieferantByNr(nr);
-								p.setLieferant(l);
-							}
+						try {
+						int nr = (int) cell.getNumericCellValue();
+						Lieferant l = serviceLieferant.getLieferantByNr(nr);
+						p.setLieferant(l);
+						} catch (IllegalStateException e) {
+							//do nothing
 						}
 					}
 				}

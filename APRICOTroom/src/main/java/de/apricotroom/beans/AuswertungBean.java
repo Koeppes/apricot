@@ -1,20 +1,24 @@
 package de.apricotroom.beans;
 
-
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
 
 import org.apache.poi.util.IOUtils;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
 import de.apricotroom.bo.Auswertung;
+import de.apricotroom.bo.Ergebnis;
+import de.apricotroom.bo.Produkt;
 import de.apricotroom.pers.JPAServiceAuswertung;
 import de.apricotroom.tools.ProduktLister;
 
@@ -22,8 +26,10 @@ import de.apricotroom.tools.ProduktLister;
 @SessionScoped
 public class AuswertungBean {
 	private List<Auswertung> auswertungen = new ArrayList<>();
+	private List<Ergebnis> ergebnisse = new ArrayList<>();
 	private Auswertung selectedAuswertung;
 	private String selectedRows;
+
 	private JPAServiceAuswertung serviceAuswertung = new JPAServiceAuswertung();
 
 	public String getSelectedRows() {
@@ -56,16 +62,15 @@ public class AuswertungBean {
 	}
 
 	public void onSelect(Auswertung f, String typeOfSelection, String indexes) {
-		// System.out.println("OnSelect:" + car + " typeOfSelection: " +
-		// typeOfSelection + " indexes: " + indexes);
 		setSelectedAuswertung(f);
 		selectedRows = indexes;
 		// this.setButtonsDisabled(false);
 	}
+
 	@PostConstruct
 	public void init() {
 		this.setAuswertungen(serviceAuswertung.getAllAuswertungen());
-		
+
 	}
 
 	private UploadedFile file;
@@ -78,9 +83,50 @@ public class AuswertungBean {
 		this.file = file;
 	}
 
+	public String auswertenAll() {
+		ProduktLister lister = new ProduktLister();
+		Map<Produkt, Integer> result = lister.readFiles(this.getAuswertungen());
+		Iterator<Produkt> it = result.keySet().iterator();
+		while (it.hasNext()) {
+			Produkt p = it.next();
+			Ergebnis e = new Ergebnis();
+			e.setProdukt(p);
+			e.setCount(result.get(p));
+			getErgebnisse().add(e);
+		}
+
+		return null;
+	}
+
+	public String auswerten() {
+		if (this.getSelectedAuswertung() == null) {
+			FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", "Bitte eine Auswertung auswählen!");
+			FacesContext.getCurrentInstance().addMessage(null, success);
+		} else {
+			ProduktLister lister = new ProduktLister();
+			Map<Produkt, Integer> result = lister.readFile(this.getSelectedAuswertung());
+			Iterator<Produkt> it = result.keySet().iterator();
+			while (it.hasNext()) {
+				Produkt p = it.next();
+				Ergebnis e = new Ergebnis();
+				e.setProdukt(p);
+				e.setCount(result.get(p));
+				getErgebnisse().add(e);
+			}
+		}
+		return null;
+	}
+
+	public List<Ergebnis> getErgebnisse() {
+		return ergebnisse;
+	}
+
+	public void setErgebnisse(List<Ergebnis> ergebnisse) {
+		this.ergebnisse = ergebnisse;
+	}
+
 	public String upload() {
 		if (file.getFileName() != null && !file.getFileName().isEmpty()) {
-			ProduktLister lister = new ProduktLister();
 			try {
 				byte[] bytes = IOUtils.toByteArray(file.getInputstream());
 				Auswertung a = new Auswertung();
@@ -88,7 +134,6 @@ public class AuswertungBean {
 				a.setFilename(file.getFileName());
 				this.getAuswertungen().add(a);
 				serviceAuswertung.persist(a);
-				lister.readFile((FileInputStream) file.getInputstream());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -100,7 +145,5 @@ public class AuswertungBean {
 		// Get uploaded file from the FileUploadEvent
 		this.file = e.getFile();
 		// Print out the information of the file
-		System.out.println(
-				"Uploaded File Name Is :: " + file.getFileName() + " :: Uploaded File Size :: " + file.getSize());
 	}
 }

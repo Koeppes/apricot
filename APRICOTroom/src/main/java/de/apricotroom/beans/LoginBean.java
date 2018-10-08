@@ -9,6 +9,7 @@ import javax.faces.context.FacesContext;
 import de.apricotroom.bo.Benutzer;
 import de.apricotroom.bo.Produkt;
 import de.apricotroom.pers.JPAServiceBenutzer;
+import net.bootsfaces.utils.FacesMessages;
 
 @SessionScoped
 @ManagedBean
@@ -76,7 +77,7 @@ public class LoginBean {
 		FacesContext fc = FacesContext.getCurrentInstance();
 		NavigationHandler nav = fc.getApplication().getNavigationHandler();
 		try {
-			nav.handleNavigation(fc, null, "/productSearch.xhtml");
+			nav.handleNavigation(fc, null, "/all.xhtml");
 			fc.renderResponse();
 		} catch (Exception e) {
 			System.out.println(e);

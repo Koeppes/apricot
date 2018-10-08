@@ -34,30 +34,35 @@ public class ProductEditorBean {
 	private List<Farben> farben;
 	private List<Ringgroessen> ringgroessen;
 	private List<Edelsteine> edelsteine;
-	
+	private ProductSearchBean searchBean;
+
 	public boolean isEdelsteinDisabled() {
 		return getSelectedProdukt().isGenerated() || !getSelectedProdukt().isGemstone();
 	}
+
 	public List<Edelsteine> getEdelsteine() {
-		if(edelsteine == null) {
+		if (edelsteine == null) {
 			edelsteine = new ArrayList<>(Arrays.asList(Edelsteine.values()));
 		}
 		return edelsteine;
 	}
+
 	public List<Kategorien> getKategorien() {
-		if(kategorien == null) {
+		if (kategorien == null) {
 			kategorien = new ArrayList<>(Arrays.asList(Kategorien.values()));
 		}
 		return kategorien;
 	}
+
 	public List<Ringgroessen> getRinggroessen() {
-		if(ringgroessen == null) {
+		if (ringgroessen == null) {
 			ringgroessen = new ArrayList<>(Arrays.asList(Ringgroessen.values()));
 		}
 		return ringgroessen;
 	}
+
 	public List<Materialien> getMaterialien() {
-		if(materialien == null) {
+		if (materialien == null) {
 			materialien = new ArrayList<>(Arrays.asList(Materialien.values()));
 		}
 		return materialien;
@@ -68,14 +73,16 @@ public class ProductEditorBean {
 	}
 
 	public List<Farben> getFarben() {
-		if(farben == null) {
+		if (farben == null) {
 			farben = new ArrayList<>(Arrays.asList(Farben.values()));
 		}
 		return farben;
 	}
+
 	public boolean getSizeVisible() {
 		return Kategorien.RING.getValue().equals(this.getSelectedProdukt().getKategorie());
 	}
+
 	public void setFarben(List<Farben> farben) {
 		this.farben = farben;
 	}
@@ -94,6 +101,7 @@ public class ProductEditorBean {
 
 	private JPAServiceProdukt serviceProdukt;
 	private JPAServiceLieferant serviceLieferant;
+
 	public JPAServiceLieferant getServiceLieferant() {
 		return serviceLieferant;
 	}
@@ -109,7 +117,6 @@ public class ProductEditorBean {
 	public void setSelectedProduktCopy(Produkt selectedProduktCopy) {
 		this.selectedProduktCopy = selectedProduktCopy;
 	}
-
 
 	public Produkt getSelectedProdukt() {
 		return selectedProdukt;
@@ -166,12 +173,22 @@ public class ProductEditorBean {
 		JPAServiceProdukt s = (JPAServiceProdukt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
 				.get("serviceProdukt");
 		this.setServiceProdukt(s);
-		JPAServiceLieferant l = (JPAServiceLieferant) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
-				.get("serviceLieferant");
+		JPAServiceLieferant l = (JPAServiceLieferant) FacesContext.getCurrentInstance().getExternalContext()
+				.getRequestMap().get("serviceLieferant");
 		this.setServiceLieferant(l);
 		this.setSuppliers(l.getLieferanten());
-		
+		ProductSearchBean bean = (ProductSearchBean) FacesContext.getCurrentInstance().getExternalContext()
+				.getRequestMap().get("productSearchBean");
+		this.setSearchBean(bean);
 
+	}
+
+	public ProductSearchBean getSearchBean() {
+		return searchBean;
+	}
+
+	public void setSearchBean(ProductSearchBean searchBean) {
+		this.searchBean = searchBean;
 	}
 
 	public ProductEditorBean() {
@@ -188,6 +205,10 @@ public class ProductEditorBean {
 
 	public void cancel() {
 		this.getSelectedProdukt().rollback(this.getSelectedProduktCopy());
+		if (this.getSelectedProdukt().getId() == null) {
+			this.getSearchBean().getProdukte().remove(this.getSelectedProdukt());
+			this.getSearchBean().setSelectedProdukt(null);
+		}
 		navigateBack("cancel");
 	}
 
@@ -202,7 +223,7 @@ public class ProductEditorBean {
 		FacesContext fc = FacesContext.getCurrentInstance();
 		NavigationHandler nav = fc.getApplication().getNavigationHandler();
 		try {
-			nav.handleNavigation(fc, action, "/productSearch.xhtml");
+			nav.handleNavigation(fc, action, "/all.xhtml");
 			fc.renderResponse();
 		} catch (Exception e) {
 			System.out.println(e);
