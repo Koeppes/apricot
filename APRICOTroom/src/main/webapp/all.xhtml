@@ -1,0 +1,132 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui" xmlns:b="http://bootsfaces.net/ui"
+	xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+</h:head>
+
+<h:body>
+	<b:panel look="success" title="Artikel" />
+	<b:tabView>
+		<b:tab title="Bearbeiten">
+			<b:messages id="nachrichtenArtikel" showDetail="true" showSummary="false" />
+			<h:form id="productSearch">
+				<b:panelGrid columns="1">
+					<b:dataTable id="dataTableProdukte" excel="true" pdf="true" print="true"
+						value="#{productSearchBean.produkte}" var="produkt"
+						onselect="ajax:productSearchBean.onSelect(produkt, typeOfSelection, indexes);"
+						ondeselect="ajax:productSearchBean.onDeselect(produkt, typeOfSelection, indexes);"
+						selected-row="#{productSearchBean.selectedRows}" select="true"
+						selectionMode="single" render=":form:deleteButton">
+						<b:dataTableColumn value="#{produkt.serialnumber}" />
+						<b:dataTableColumn label="Beschreibung" id="columnName" value="#{produkt.description}" />
+						<b:dataTableColumn label="Kategorie" value="#{produkt.kategorie}" />
+						<b:dataTableColumn label="Lieferant" value="#{produkt.lieferant.name}" />
+						<b:dataTableColumn value="#{produkt.farbe}" />
+						<b:dataTableColumn label="Einkaufspreis"
+							value="#{produkt.purchasePrice}" />
+						<b:dataTableColumn label="Verkaufspreis"
+							value="#{produkt.sellingPrice}" />
+						<b:dataTableColumn label="Reduzierter Preis"
+							value="#{produkt.salePrice}" />
+						<f:ajax render="deleteButton editButton copyButton" />
+					</b:dataTable>
+				</b:panelGrid>
+				<b:buttonGroup id="buttonGroup">
+					<b:commandButton
+						actionListener="#{productSearchBean.createProdukt}" value="Neu"
+						update="@form" />
+					<b:commandButton id="editButton"
+						disabled="#{productSearchBean.buttonsDisabled}"
+						actionListener="#{productSearchBean.editProdukt}"
+						value="Bearbeiten" />
+					<b:button onclick="$('.deleteDialog').modal('show')"
+						value="Löschen" />
+					<b:modal title="Achtung" closable="false" closeOnEscape="true"
+						styleClass="deleteDialog">
+						<p>Produkt löschen?</p>
+						<b:row>
+							<b:column>
+								<b:button id="deleteButton" largeScreen="half" value="Abbrechen"
+									dismiss="modal" onclick="return false;" />
+								<b:commandButton largeScreen="half" update="@form"
+									actionListener="#{productSearchBean.deleteProdukt}"
+									onclick="return true;"
+									oncomplete="{ $('.deleteDialog').modal('hide') } "
+									dismiss="modal" value="OK" look="success" />
+							</b:column>
+						</b:row>
+					</b:modal>
+					<b:commandButton actionListener="#{productSearchBean.copyProdukt}"
+						disabled="#{productSearchBean.buttonsDisabled}" id="copyButton"
+						value="Kopieren" />
+					<b:commandButton actionListener="#{productSearchBean.abmelden}"
+						value="Abmelden" update="@form" />
+				</b:buttonGroup>
+				<b:message />
+			</h:form>
+		</b:tab>
+		<b:tab title="Auswerten">
+			<h:form id="formAuswertung">
+				<b:messages id="nachrichtenAuswertung" showDetail="true" showSummary="false" />
+				<b:dataTable id="dataTableAuswertung"
+					value="#{auswertungBean.auswertungen}" var="auswertung"
+					onselect="ajax:auswertungBean.onSelect(auswertung, typeOfSelection, indexes);"
+					ondeselect="ajax:auswertungBean.onDeselect(auswertung, typeOfSelection, indexes);"
+					selected-row="#{auswertungBean.selectedRows}" select="true"
+					selectionMode="single">
+					<b:dataTableColumn label="Dateiname" id="columnName"
+						value="#{auswertung.filename}" />
+				</b:dataTable>
+				<b:buttonGroup id="buttonGroupAuswertung">
+					<b:commandButton styleClass="auswertenButton" id="auswertenButton"
+					 actionListener="#{auswertungBean.auswerten}"
+						value="Auswerten" />
+					<b:commandButton id="auswertenButtonAll"
+						actionListener="#{auswertungBean.auswertenAll}"
+						value="Alle Auswerten" />
+				</b:buttonGroup>
+				<p:separator />
+				<br />
+			</h:form>
+
+			<h:form enctype="multipart/form-data">
+				<p:fileUpload value="#{auswertungBean.file}" mode="simple"
+					fileUploadListener="#{auswertungBean.fileUploadListener}"></p:fileUpload>
+				<h:commandButton value="Hochladen" action="#{auswertungBean.upload}"></h:commandButton>
+				<p:separator />
+				<br />
+			</h:form>
+
+			<h:form>
+				<b:dataTable id="dataTableErgebnisse" excel="true" pdf="true" print="true"
+					value="#{auswertungBean.ergebnisse}" var="ergebnis"
+					selectionMode="single">
+					<b:dataTableColumn label="Seriennummer" id="columnSerial"
+						value="#{ergebnis.produkt.serialnumber}" />
+					<b:dataTableColumn label="Beschreibung" id="columnDescription"
+						value="#{ergebnis.produkt.description}" />
+					<b:dataTableColumn label="Anzahl" id="columnCount"
+						value="#{ergebnis.count}" />
+				</b:dataTable>
+				<b:commandButton actionListener="#{productSearchBean.abmelden}"
+					value="Abmelden" update="@form" />
+			</h:form>
+		</b:tab>
+		<b:tab title="Lieferanten">
+		<b:dataTable id="dataTableLiefernaten" excel="true" pdf="true" print="true"
+					value="#{lieferantenBean.lieferanten}" var="lieferant"
+					selectionMode="single">
+					<b:dataTableColumn label="ID" id="columnIDLieferant" styleClass="width:100px;"
+						value="#{lieferant.id}" />
+					<b:dataTableColumn label="Name" id="columnNameLieferant"
+						value="#{lieferant.name}" />
+				</b:dataTable>
+		</b:tab>
+	</b:tabView>
+</h:body>
+</html>
