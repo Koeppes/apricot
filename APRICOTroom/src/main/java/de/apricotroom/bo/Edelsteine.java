@@ -18,7 +18,17 @@ public enum Edelsteine {
 	public String getIndex() {
 		return index;
 	}
-	public static Edelsteine of(String v) {
+	public static Edelsteine ofValue(String v) {
+		Edelsteine result = null;
+		for(int i = 0; i< Edelsteine.values().length && result == null; i++) {
+			Edelsteine f = Edelsteine.values()[i];
+			if(f.getValue().equals(v)) {
+				result = f;
+			}
+		}
+		return result;
+	}
+	public static Edelsteine ofIndex(String v) {
 		Edelsteine result = null;
 		for(int i = 0; i< Edelsteine.values().length && result == null; i++) {
 			Edelsteine f = Edelsteine.values()[i];

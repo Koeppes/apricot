@@ -25,6 +25,7 @@
 			<many-to-one name="lieferant" fetch="LAZY"
 				target-entity="de.apricotroom.bo.Lieferant" />
 			<transient name="counter" />
+			<transient name="imported" />
 		</attributes>
 	</entity>
 </entity-mappings>

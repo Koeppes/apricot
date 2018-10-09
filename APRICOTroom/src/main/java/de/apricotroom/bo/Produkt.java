@@ -15,6 +15,16 @@ public class Produkt {
 	private String farbe;
 	private String material;
 	private boolean generated;
+	private boolean imported;
+
+	public boolean isImported() {
+		return imported;
+	}
+
+	public void setImported(boolean imported) {
+		this.imported = imported;
+	}
+
 	private boolean gemstone;
 	private String edelstein;
 	private int counter;
@@ -195,7 +205,14 @@ public class Produkt {
 		this.setSize(p.getSize());
 	}
 
-	private void buildSerialnumber() {
+	public void buildSerialnumber() {
+		if (this.isImported()) {
+			this.buildSerialnumber(counter);
+		}
+
+	}
+
+	public void buildSerialnumber(int newCounter) {
 		if (!this.isGenerated()) {
 			String serial = "";
 			Kategorien k = Kategorien.of(this.getKategorie());
@@ -206,9 +223,9 @@ public class Produkt {
 			if (m != null) {
 				serial = serial + m.getIndex();
 			}
-			serial = serial + "-" + counter;
+			serial = serial + "-" + newCounter;
 			if (this.isGemstone()) {
-				Edelsteine e = Edelsteine.of(this.getEdelstein());
+				Edelsteine e = Edelsteine.ofIndex(this.getEdelstein());
 				if (e != null) {
 					serial = serial + e.getIndex();
 				}
