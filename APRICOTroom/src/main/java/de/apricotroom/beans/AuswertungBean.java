@@ -29,6 +29,7 @@ public class AuswertungBean {
 	private List<Ergebnis> ergebnisse = new ArrayList<>();
 	private Auswertung selectedAuswertung;
 	private String selectedRows;
+	private UploadedFile file;
 
 	private JPAServiceAuswertung serviceAuswertung = new JPAServiceAuswertung();
 
@@ -72,8 +73,6 @@ public class AuswertungBean {
 		this.setAuswertungen(serviceAuswertung.getAllAuswertungen());
 
 	}
-
-	private UploadedFile file;
 
 	public UploadedFile getFile() {
 		return file;

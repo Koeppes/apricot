@@ -22,13 +22,22 @@ public enum Kategorien {
 
 	public static Kategorien of(String v) {
 		Kategorien result = null;
-//		return Stream.of(Kategorien.values()).filter(value -> value.getValue().equals(v)).findFirst().orElse(null);
-		for(int i = 0; i< Kategorien.values().length && result == null; i++) {
+		// return Stream.of(Kategorien.values()).filter(value ->
+		// value.getValue().equals(v)).findFirst().orElse(null);
+		for (int i = 0; i < Kategorien.values().length && result == null; i++) {
 			Kategorien k = Kategorien.values()[i];
-			if(k.getValue().equals(v)) {
+			if (k.getValue().equals(v)) {
 				result = k;
 			}
 		}
 		return result;
+	}
+
+	public String toString() {
+		if (this.getValue().equals("Keine Auswahl")) {
+			return this.getValue();
+		} else {
+			return this.getValue() + "(" + this.getIndex() + ")";
+		}
 	}
 }

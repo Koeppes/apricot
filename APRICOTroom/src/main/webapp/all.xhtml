@@ -13,20 +13,70 @@
 	<b:panel look="success" title="Artikel" />
 	<b:tabView>
 		<b:tab title="Bearbeiten">
-			<b:messages id="nachrichtenArtikel" showDetail="true" showSummary="false" />
+			<b:messages id="nachrichtenArtikel" showDetail="true"
+				showSummary="false" />
 			<h:form id="productSearch">
+				<b:panel look="success" title="Artikel filtern" />
+				<b:panelGrid columns="6">
+					<b:selectOneMenu
+						value="#{productSearchBean.selectedFilterKategorie}" ajax="true"
+						process="@this" label="Kategorie">
+						<f:selectItems value="#{productSearchBean.kategorien}"
+							var="kategorie" itemValue="#{kategorie}"
+							itemLabel="#{kategorie}" />
+					</b:selectOneMenu>
+					<b:selectOneMenu
+						value="#{productSearchBean.selectedFilterMaterial}" ajax="true"
+						process="@this" label="Material">
+						<f:selectItems value="#{productSearchBean.materialien}"
+							var="material" itemValue="#{material}"
+							itemLabel="#{material}" />
+					</b:selectOneMenu>
+					<b:selectOneMenu
+						value="#{productSearchBean.selectedFilterLieferant}" ajax="true"
+						process="@this" label="Lieferant">
+						<f:selectItems value="#{productSearchBean.lieferanten}"
+							var="lieferant" itemValue="#{lieferant}" itemLabel="#{lieferant}" />
+					</b:selectOneMenu>
+					<b:selectOneMenu value="#{productSearchBean.selectedFilterGroesse}"
+						ajax="true" process="@this" label="Größe">
+						<f:selectItems value="#{productSearchBean.groessen}" var="groesse"
+							itemValue="#{groesse}" itemLabel="#{groesse.value}" />
+					</b:selectOneMenu>
+					<b:selectOneMenu value="#{productSearchBean.selectedFilterFarbe}"
+						ajax="true" process="@this" label="Farbe">
+						<f:selectItems value="#{productSearchBean.farben}" var="farbe"
+							itemValue="#{farbe}" itemLabel="#{farbe.value}" />
+					</b:selectOneMenu>
+					<b:selectBooleanCheckbox label="Modeschmuck"
+						value="#{productSearchBean.filterModeschmuck}" />
+					<b:inputText label="Preis von"
+						value="#{productSearchBean.filterPreisVon}">
+						<f:convertNumber />
+					</b:inputText>
+					<b:inputText label="Preis bis"
+						value="#{productSearchBean.filterPreisBis}">
+						<f:convertNumber />
+					</b:inputText>
+					<b:commandButton id="filterButton"
+						actionListener="#{productSearchBean.filter}" value="Filtern" />
+
+				</b:panelGrid>
 				<b:panelGrid columns="1">
-					<b:dataTable id="dataTableProdukte" excel="true" pdf="true" print="true"
-						value="#{productSearchBean.produkte}" var="produkt"
+					<b:dataTable id="dataTableProdukte" excel="true" pdf="true"
+						print="true" value="#{productSearchBean.produkte}" var="produkt"
 						onselect="ajax:productSearchBean.onSelect(produkt, typeOfSelection, indexes);"
 						ondeselect="ajax:productSearchBean.onDeselect(produkt, typeOfSelection, indexes);"
 						selected-row="#{productSearchBean.selectedRows}" select="true"
 						selectionMode="single" render=":form:deleteButton">
 						<b:dataTableColumn value="#{produkt.serialnumber}" />
-						<b:dataTableColumn label="Beschreibung" id="columnName" value="#{produkt.description}" />
+						<b:dataTableColumn label="Beschreibung" id="columnName"
+							value="#{produkt.description}" />
 						<b:dataTableColumn label="Kategorie" value="#{produkt.kategorie}" />
-						<b:dataTableColumn label="Lieferant" value="#{produkt.lieferant.name}" />
+						<b:dataTableColumn label="Lieferant"
+							value="#{produkt.lieferant.name}" />
 						<b:dataTableColumn value="#{produkt.farbe}" />
+						<b:dataTableColumn label="Größe" value="#{produkt.size}" />
 						<b:dataTableColumn label="Einkaufspreis"
 							value="#{produkt.purchasePrice}" />
 						<b:dataTableColumn label="Verkaufspreis"
@@ -68,11 +118,23 @@
 						value="Abmelden" update="@form" />
 				</b:buttonGroup>
 				<b:message />
+				<p:separator />
 			</h:form>
+			<b:panel look="success" title="Artikel importieren" />
+			<h:form enctype="multipart/form-data">
+				<p:fileUpload value="#{productSearchBean.importFile}" mode="simple"
+					fileUploadListener="#{productSearchBean.fileUploadListener}"></p:fileUpload>
+				<h:commandButton value="Importieren"
+					action="#{productSearchBean.uploadImportFile}"></h:commandButton>
+				<p:separator />
+				<br />
+			</h:form>
+
 		</b:tab>
 		<b:tab title="Auswerten">
 			<h:form id="formAuswertung">
-				<b:messages id="nachrichtenAuswertung" showDetail="true" showSummary="false" />
+				<b:messages id="nachrichtenAuswertung" showDetail="true"
+					showSummary="false" />
 				<b:dataTable id="dataTableAuswertung"
 					value="#{auswertungBean.auswertungen}" var="auswertung"
 					onselect="ajax:auswertungBean.onSelect(auswertung, typeOfSelection, indexes);"
@@ -84,8 +146,7 @@
 				</b:dataTable>
 				<b:buttonGroup id="buttonGroupAuswertung">
 					<b:commandButton styleClass="auswertenButton" id="auswertenButton"
-					 actionListener="#{auswertungBean.auswerten}"
-						value="Auswerten" />
+						actionListener="#{auswertungBean.auswerten}" value="Auswerten" />
 					<b:commandButton id="auswertenButtonAll"
 						actionListener="#{auswertungBean.auswertenAll}"
 						value="Alle Auswerten" />
@@ -103,8 +164,8 @@
 			</h:form>
 
 			<h:form>
-				<b:dataTable id="dataTableErgebnisse" excel="true" pdf="true" print="true"
-					value="#{auswertungBean.ergebnisse}" var="ergebnis"
+				<b:dataTable id="dataTableErgebnisse" excel="true" pdf="true"
+					print="true" value="#{auswertungBean.ergebnisse}" var="ergebnis"
 					selectionMode="single">
 					<b:dataTableColumn label="Seriennummer" id="columnSerial"
 						value="#{ergebnis.produkt.serialnumber}" />
@@ -118,14 +179,14 @@
 			</h:form>
 		</b:tab>
 		<b:tab title="Lieferanten">
-		<b:dataTable id="dataTableLiefernaten" excel="true" pdf="true" print="true"
-					value="#{lieferantenBean.lieferanten}" var="lieferant"
-					selectionMode="single">
-					<b:dataTableColumn label="ID" id="columnIDLieferant" styleClass="width:100px;"
-						value="#{lieferant.id}" />
-					<b:dataTableColumn label="Name" id="columnNameLieferant"
-						value="#{lieferant.name}" />
-				</b:dataTable>
+			<b:dataTable id="dataTableLiefernaten" excel="true" pdf="true"
+				print="true" value="#{lieferantenBean.lieferanten}" var="lieferant"
+				selectionMode="single">
+				<b:dataTableColumn label="ID" id="columnIDLieferant"
+					styleClass="width:100px;" value="#{lieferant.id}" />
+				<b:dataTableColumn label="Name" id="columnNameLieferant"
+					value="#{lieferant.name}" />
+			</b:dataTable>
 		</b:tab>
 	</b:tabView>
 </h:body>

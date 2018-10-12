@@ -14,7 +14,7 @@
 	</context-param>
 	
 	<welcome-file-list>
-		<welcome-file>login.jsf</welcome-file>
+		<welcome-file>all.jsf</welcome-file>
 	</welcome-file-list>
 	
 </web-app>

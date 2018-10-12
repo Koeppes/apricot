@@ -1,5 +1,6 @@
 package de.apricotroom.tools;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -31,36 +32,45 @@ public class ProduktImporter {
 		pg.readFile("/Users/jurgenhochkoppler/git/APRICOTroom/src/main/java/de/apricotroom/tools/produktImport.xls");
 	}
 
-	public void readFile(String filename) {
+	public List<Produkt> readFile(byte[] b) {
+		List<Produkt> newProdukte = new ArrayList<>();
 		try {
-			FileInputStream excelFile = new FileInputStream(filename);
+			ByteArrayInputStream excelFile = new ByteArrayInputStream(b);
 			Workbook workbook = new HSSFWorkbook(excelFile);
-			List<Produkt> list = serviceProdukt.getProdukte();
-			List<Produkt> newProdukte = new ArrayList<>();
-			int initialCount = list.size();
-			int count = initialCount;
-			List<Lieferant> lieferanten = serviceLieferant.getLieferanten();
-			this.readOhrringe(workbook, count, lieferanten, newProdukte);
-			count = initialCount + newProdukte.size();
-			this.readKetten(workbook, count, lieferanten, newProdukte);
-			count = initialCount + newProdukte.size();
-			this.readArmbaender(workbook, count, lieferanten, newProdukte);
-			count = initialCount + newProdukte.size();
-			this.readRinge(workbook, count, lieferanten, newProdukte);
-			count = initialCount + newProdukte.size();
-			Iterator<Produkt> it = newProdukte.iterator();
-			while (it.hasNext()) {
-				Produkt prod = it.next();
-				System.out.println(prod.getSerialnumber());
-				if (prod.getLieferant() != null) {
-					System.out.println(prod.getLieferant().getName());
-				}
-			}
-
-			workbook.close();
+			return this.readFile(workbook, newProdukte);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return newProdukte;
+	}
+
+	public List<Produkt> readFile(String filename) {
+		List<Produkt> newProdukte = new ArrayList<>();
+		try {
+			FileInputStream excelFile = new FileInputStream(filename);
+			Workbook workbook = new HSSFWorkbook(excelFile);
+			return this.readFile(workbook, newProdukte);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return newProdukte;
+	}
+
+	private List<Produkt> readFile(Workbook workbook, List<Produkt> newProdukte) throws IOException {
+		List<Produkt> list = serviceProdukt.getProdukte();
+		int initialCount = list.size();
+		int count = initialCount;
+		List<Lieferant> lieferanten = serviceLieferant.getLieferanten();
+		this.readOhrringe(workbook, count, lieferanten, newProdukte);
+		count = initialCount + newProdukte.size();
+		this.readKetten(workbook, count, lieferanten, newProdukte);
+		count = initialCount + newProdukte.size();
+		this.readArmbaender(workbook, count, lieferanten, newProdukte);
+		count = initialCount + newProdukte.size();
+		this.readRinge(workbook, count, lieferanten, newProdukte);
+		count = initialCount + newProdukte.size();
+		workbook.close();
+		return newProdukte;
 
 	}
 

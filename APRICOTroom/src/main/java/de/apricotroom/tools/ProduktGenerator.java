@@ -16,6 +16,7 @@ import de.apricotroom.bo.Edelsteine;
 import de.apricotroom.bo.Farben;
 import de.apricotroom.bo.Kategorien;
 import de.apricotroom.bo.Lieferant;
+import de.apricotroom.bo.Materialien;
 import de.apricotroom.bo.Produkt;
 import de.apricotroom.pers.JPAServiceLieferant;
 import de.apricotroom.pers.JPAServiceProdukt;
@@ -74,6 +75,10 @@ public class ProduktGenerator {
 						serial2 = cell.getStringCellValue();
 						if (serial2.length() == 1) {
 							serial2 = "0" + serial2;
+						}
+						Materialien m = Materialien.ofIndex(serial2);
+						if(m != null) {
+							p.setMaterial(m.getValue());
 						}
 						serial12 = serial1 + serial2.substring(0, 2);
 						serial = serial1 + serial2;
@@ -197,6 +202,10 @@ public class ProduktGenerator {
 						serial2 = cell.getStringCellValue();
 						if (serial2.length() == 1) {
 							serial2 = "0" + serial2;
+						}
+						Materialien m = Materialien.ofIndex(serial2);
+						if(m != null) {
+							p.setMaterial(m.getValue());
 						}
 						if (serial2.length() > 2) {
 							serial12 = serial1 + serial2.substring(0, 2);

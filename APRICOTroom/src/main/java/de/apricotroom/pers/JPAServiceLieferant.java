@@ -17,6 +17,14 @@ import de.apricotroom.bo.Produkt;
 public class JPAServiceLieferant extends JPAService {
 	
 	@Override
+	public Object persist(Object entity) {
+		if(!((Lieferant) entity).getName().equals("Keine Auswahl")) {
+			return super.persist(entity);
+		}
+		return null;
+	}
+
+	@Override
 	protected String getClassName() {
 		return Lieferant.class.getName();
 	}
@@ -80,6 +88,10 @@ public class JPAServiceLieferant extends JPAService {
 			Root<Lieferant> from = criteriaQuery.from(Lieferant.class);
 			criteriaQuery.orderBy(criteriaBuilder.asc(from.get("id")));
 			resultList = getEntityManager().createQuery(criteriaQuery).getResultList();
+			Lieferant keineAuswahl = new Lieferant();
+			keineAuswahl.setId(new Long(-1));
+			keineAuswahl.setName("Keine Auswahl");
+			resultList.add(0, keineAuswahl);
 		} catch (javax.persistence.NoResultException e) {
 		}
 		return resultList;
