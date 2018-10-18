@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:f="http://java.sun.com/jsf/core">
+
+<h:head>
+	<h:outputStylesheet library="themes"
+		name="#{themeSelectorBean.theme}.min.css"
+		rendered="#{themeSelectorBean.bootswatchTheme}"></h:outputStylesheet>
+</h:head>
+<h:body>
+	<b:panel collapsible="false"
+		style="background-color:#F3D5B7;border-color:#F3D5B7"
+		title="Lieferant bearbeiten" />
+	<b:container>
+		<h:form id="lieferantEditor">
+			<b:panelGrid columns="1">
+				<b:inputText id="name"
+					value="#{lieferantEditorBean.selectedLieferant.name}" label="Name">
+				</b:inputText>
+				<b:message for="name" />
+				<b:inputText id="nr"
+					value="#{lieferantEditorBean.selectedLieferant.nr}"
+					label="Seriennummer" />
+				<b:message for="nr" />
+			</b:panelGrid>
+			<b:panelGrid columns="2">
+				<b:buttonGroup>
+					<b:commandButton actionListener="#{lieferantEditorBean.save}"
+						value="Speichern" update="@form" />
+					<b:commandButton actionListener="#{lieferantEditorBean.cancel}"
+						value="Abbrechen" update="@form" />
+				</b:buttonGroup>
+			</b:panelGrid>
+
+		</h:form>
+	</b:container>
+</h:body>
+</html>
