@@ -167,30 +167,6 @@ public class ProduktImporter {
 		return lief;
 	}
 
-	private String readKategorie(String cell1Value) {
-		String result = null;
-		if (cell1Value != null && !cell1Value.isEmpty()) {
-			Optional<Kategorien> o = Arrays.asList(Kategorien.values()).stream()
-					.filter(e -> e.equals(Kategorien.of(cell1Value))).findFirst();
-			Kategorien k = o.get();
-			result = k.getIndex();
-
-		}
-		return result;
-
-	}
-
-	private String readMaterial(String cell2Value) {
-		String result = null;
-		if (cell2Value != null && !cell2Value.isEmpty()) {
-			Optional<Materialien> o = Arrays.asList(Materialien.values()).stream()
-					.filter(e -> e.equals(Materialien.of(cell2Value))).findFirst();
-			Materialien k = o.get();
-			result = k.getIndex();
-		}
-		return result;
-	}
-
 	private String readFarbe(String cell2Value) {
 		String result = null;
 		if (cell2Value != null && !cell2Value.isEmpty()) {

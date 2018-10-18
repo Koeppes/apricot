@@ -86,11 +86,7 @@ public class ProduktLister {
 			Produkt p = it.next();
 			pCount = map.get(p);
 			total = total + pCount;
-			System.out.println("Produkt " + p.getSerialnumber() + " " + p.getDescription() + " wurde " + pCount
-					+ " mal verkauft!");
 		}
-		System.out.println("Es wurden insgesamt " + total + " Produkte verkauft");
-
 	}
 
 	private Map<Produkt, Integer> readList(Workbook workbook, Map<Produkt, Integer> map) {
