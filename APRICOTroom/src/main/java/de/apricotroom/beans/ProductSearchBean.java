@@ -4,9 +4,10 @@ package de.apricotroom.beans;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collector;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -14,24 +15,27 @@ import javax.faces.application.FacesMessage;
 import javax.faces.application.NavigationHandler;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
-import javax.faces.bean.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.apache.poi.util.IOUtils;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
+import org.primefaces.util.DateUtils;
 
 import de.apricotroom.bo.Auswertung;
+import de.apricotroom.bo.Ergebnis;
 import de.apricotroom.bo.Farben;
 import de.apricotroom.bo.Kategorien;
 import de.apricotroom.bo.Lieferant;
 import de.apricotroom.bo.Materialien;
 import de.apricotroom.bo.Produkt;
 import de.apricotroom.bo.Ringgroessen;
+import de.apricotroom.pers.JPAServiceAuswertung;
 import de.apricotroom.pers.JPAServiceLieferant;
 import de.apricotroom.pers.JPAServiceProdukt;
 import de.apricotroom.tools.ProduktImporter;
+import de.apricotroom.tools.ProduktLister;
 
 @SessionScoped
 @ManagedBean
@@ -43,15 +47,114 @@ public class ProductSearchBean {
 	private UploadedFile importFile;
 	private Lieferant selectedFilterLieferant;
 	private String selectedRows;
+	private String selectedRowsLieferant;
 	private Produkt selectedProdukt;
+	private Lieferant selectedLieferant;
 	private JPAServiceProdukt serviceProdukt = new JPAServiceProdukt();
 	private JPAServiceLieferant serviceLieferant = new JPAServiceLieferant();
+
 	private boolean buttonsDisabled;
 	private List<Kategorien> kategorien;
+	private List<String> kategorienString;
 	private Kategorien selectedFilterKategorie;
+	private String selectedFilterKategorieString;
 	private List<Materialien> materialien;
+	private List<String> materialienString;
 	private Materialien selectedFilterMaterial;
+	private String selectedFilterMaterialString;
 	private List<Ringgroessen> groessen;
+	private int tabIndex;
+	private List<Auswertung> auswertungen = new ArrayList<>();
+	private List<Auswertung> selectedAuswertungen = new ArrayList<>();
+	private List<Ergebnis> ergebnisse = new ArrayList<>();
+	private Auswertung selectedAuswertung;
+	private String selectedRowsAuswertung;
+	private UploadedFile fileAuswertung;
+	private Date date;
+	private Date filterDateAuswertungVon;
+	private Date filterDateAuswertungBis;
+
+	public Date getFilterDateAuswertungVon() {
+		return filterDateAuswertungVon;
+	}
+
+	public void setFilterDateAuswertungVon(Date filterDateAuswertungVon) {
+		this.filterDateAuswertungVon = filterDateAuswertungVon;
+	}
+
+	public Date getFilterDateAuswertungBis() {
+		return filterDateAuswertungBis;
+	}
+
+	public void setFilterDateAuswertungBis(Date filterDateAuswertungBis) {
+		this.filterDateAuswertungBis = filterDateAuswertungBis;
+	}
+
+	private JPAServiceAuswertung serviceAuswertung = new JPAServiceAuswertung();
+
+	public int getTabIndex() {
+		return tabIndex;
+	}
+
+	public void setTabIndex(int tabIndex) {
+		this.tabIndex = tabIndex;
+	}
+
+	public Lieferant getSelectedLieferant() {
+		return selectedLieferant;
+	}
+
+	public void setSelectedLieferant(Lieferant s) {
+		this.selectedLieferant = s;
+	}
+
+	public List<String> getKategorienString() {
+		if (kategorienString == null) {
+			kategorienString = new ArrayList<>();
+			for (int i = 0; i < Kategorien.values().length; i++) {
+				Kategorien k = Kategorien.values()[i];
+				kategorienString.add(k.getValue());
+			}
+		}
+		return kategorienString;
+	}
+
+	public void setKategorienString(List<String> kategorienString) {
+		this.kategorienString = kategorienString;
+	}
+
+	public List<String> getMaterialienString() {
+		if (materialienString == null) {
+			materialienString = new ArrayList<>();
+			for (int i = 0; i < Materialien.values().length; i++) {
+				Materialien k = Materialien.values()[i];
+				materialienString.add(k.getValue());
+			}
+		}
+
+		return materialienString;
+	}
+
+	public void setMaterialienString(List<String> materialienString) {
+		this.materialienString = materialienString;
+	}
+
+	public String getSelectedFilterKategorieString() {
+		return selectedFilterKategorieString;
+	}
+
+	public void setSelectedFilterKategorieString(String selectedFilterKategorieString) {
+		this.selectedFilterKategorieString = selectedFilterKategorieString;
+	}
+
+	public String getSelectedFilterMaterialString() {
+		return selectedFilterMaterialString;
+	}
+
+	public void setSelectedFilterMaterialString(String selectedFilterMaterialString) {
+		this.selectedFilterMaterialString = selectedFilterMaterialString;
+	}
+
 	private Ringgroessen selectedFilterGroesse;
 	private boolean filterModeschmuck;
 	private Double filterPreisVon;
@@ -176,7 +279,36 @@ public class ProductSearchBean {
 		return kategorien;
 	}
 
+	public void filterAuswertungen() {
+		this.setTabIndex(1);
+		List<Auswertung> filteredList = new ArrayList<>();
+		List<Auswertung> list = serviceAuswertung.getAllAuswertungen();
+		if (this.getFilterDateAuswertungVon() != null && this.getFilterDateAuswertungBis() != null) {
+			if (this.getFilterDateAuswertungVon().before(this.getFilterDateAuswertungBis())
+					|| org.apache.commons.lang.time.DateUtils.isSameDay(this.getFilterDateAuswertungBis(),
+							this.getFilterDateAuswertungVon())) {
+				filteredList = list.stream()
+						.filter(p -> p.getDate().after(this.getFilterDateAuswertungVon())
+								|| org.apache.commons.lang.time.DateUtils.isSameDay(p.getDate(),
+										this.getFilterDateAuswertungVon()))
+						.collect(Collectors.toList());
+				filteredList = filteredList.stream()
+						.filter(p -> p.getDate().before(this.getFilterDateAuswertungBis())
+								|| org.apache.commons.lang.time.DateUtils.isSameDay(p.getDate(),
+										this.getFilterDateAuswertungBis()))
+						.collect(Collectors.toList());
+			} else {
+				info("Das von-Datum muss vor dem bis-Datum liegen!");
+			}
+			this.setAuswertungen(filteredList);
+		} else {
+			this.setAuswertungen(list);
+		}
+
+	}
+
 	public void filter() {
+		this.setTabIndex(0);
 		List<Produkt> filteredProdukte = serviceProdukt.getProdukte();
 		Produkt selected = this.getSelectedProdukt();
 		List<Produkt> filteredByLiefernaten = new ArrayList<>();
@@ -186,19 +318,24 @@ public class ProductSearchBean {
 					.collect(Collectors.toList());
 			filteredProdukte = filteredByLiefernaten;
 		}
-		Kategorien k = this.getSelectedFilterKategorie();
-		if (k != null & !k.getValue().equals(Kategorien.KEINE_AUSWAHL.getValue())) {
-			List<Produkt> filteredByKategorien = filteredProdukte.stream()
-					.filter(p -> getSelectedFilterKategorie().getValue().equals(p.getKategorie()))
-					.collect(Collectors.toList());
-			filteredProdukte = filteredByKategorien;
+		String k = this.getSelectedFilterKategorieString();
+		if (!"Keine Auswahl".equals(k) && !k.isEmpty()) {
+			List<String> kats = Arrays.asList(k.split(","));
+			if (k != null) {
+				List<Produkt> filteredByKategorien = filteredProdukte.stream()
+						.filter(p -> kats.contains(p.getKategorie())).collect(Collectors.toList());
+				filteredProdukte = filteredByKategorien;
+			}
 		}
-		Materialien m = this.getSelectedFilterMaterial();
-		if (m != null & !m.getValue().equals(Materialien.KEINE_AUSWAHL.getValue())) {
-			List<Produkt> filteredByMaterialien = filteredProdukte.stream()
-					.filter(p -> getSelectedFilterMaterial().getValue().equals(p.getMaterial()))
-					.collect(Collectors.toList());
-			filteredProdukte = filteredByMaterialien;
+
+		String m = this.getSelectedFilterMaterialString();
+		if (!m.isEmpty() && !"Keine Auswahl".equals(m)) {
+			List<String> mats = Arrays.asList(m.split(","));
+			if (m != null) {
+				List<Produkt> filteredByMaterialien = filteredProdukte.stream()
+						.filter(p -> mats.contains(p.getMaterial())).collect(Collectors.toList());
+				filteredProdukte = filteredByMaterialien;
+			}
 		}
 		if (filterModeschmuck) {
 			List<Produkt> filteredByModeschmuck = filteredProdukte.stream()
@@ -226,7 +363,8 @@ public class ProductSearchBean {
 			filteredProdukte = filteredByPreisVon;
 		}
 		if (filterPreisVon != null && filterPreisBis != null) {
-			List<Produkt> filteredByPreisNotNull = filteredProdukte.stream().filter(p -> p.getSellingPrice() != null).collect(Collectors.toList());
+			List<Produkt> filteredByPreisNotNull = filteredProdukte.stream().filter(p -> p.getSellingPrice() != null)
+					.collect(Collectors.toList());
 			List<Produkt> filteredByPreisVon = filteredByPreisNotNull.stream()
 					.filter(p -> Double.compare(getFilterPreisVon(), p.getSellingPrice()) < 0
 							&& Double.compare(getFilterPreisBis(), p.getSellingPrice()) > 0)
@@ -256,6 +394,7 @@ public class ProductSearchBean {
 				List<Produkt> list = importer.readFile(bytes);
 				serviceProdukt.persistProdukte(list);
 				this.getProdukte().addAll(list);
+				this.info("Es wurden " + list.size() + " Artikel importiert!");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -303,6 +442,8 @@ public class ProductSearchBean {
 	public void init() {
 		this.setLieferanten(getServiceLieferant().getLieferanten());
 		this.setProdukte(getServiceProdukt().getProdukte());
+		this.setAuswertungen(serviceAuswertung.getAllAuswertungen());
+
 	}
 
 	public void fileUploadListener(FileUploadEvent e) {
@@ -334,6 +475,11 @@ public class ProductSearchBean {
 
 	}
 
+	public void info(String message) {
+		FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", message);
+		FacesContext.getCurrentInstance().addMessage(null, success);
+	}
+
 	public void error(String id, String message) {
 		FacesContext.getCurrentInstance().addMessage(id, new FacesMessage(FacesMessage.SEVERITY_ERROR, message, null));
 
@@ -351,8 +497,16 @@ public class ProductSearchBean {
 		return selectedRows;
 	}
 
+	public String getSelectedRowsLieferant() {
+		return selectedRowsLieferant;
+	}
+
 	public void setSelectedRows(String selectedRows) {
 		this.selectedRows = selectedRows;
+	}
+
+	public void setSelectedRowsLierferant(String selectedRows) {
+		this.selectedRowsLieferant = selectedRows;
 	}
 
 	public void setServiceProdukt(JPAServiceProdukt s) {
@@ -374,11 +528,31 @@ public class ProductSearchBean {
 		this.setButtonsDisabled(true);
 	}
 
+	public void onSelectLieferant(Lieferant l, String typeOfSelection, String indexes) {
+		setSelectedLieferant(l);
+	}
+
+	public void onDeselectLieferant(Lieferant l, String typeOfSelection, String indexes) {
+		setSelectedLieferant(null);
+	}
+
 	public void editProdukt() {
+		this.setTabIndex(0);
 		if (this.getSelectedProdukt() != null) {
 			navigateToEditor(this.getSelectedProdukt());
 		} else {
 			FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", "Bitte einen Artikel auswählen!");
+			FacesContext.getCurrentInstance().addMessage(null, success);
+		}
+	}
+
+	public void editLieferant() {
+		this.setTabIndex(2);
+		if (this.getSelectedLieferant() != null) {
+			navigateToEditor(this.getSelectedLieferant());
+		} else {
+			FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "",
+					"Bitte einen Lieferanten auswählen!");
 			FacesContext.getCurrentInstance().addMessage(null, success);
 		}
 	}
@@ -388,13 +562,42 @@ public class ProductSearchBean {
 	}
 
 	public void createProdukt() {
+		this.setTabIndex(0);
 		Produkt p = new Produkt();
-		p.setCounter(this.getProdukte().size());
+		p.setCounter(serviceProdukt.getProdukte().size());
 		produkte.add(p);
 		setSelectedProdukt(p);
 		p.setLieferant(getServiceLieferant().getLieferantById(new Long(0)));
 		selectedRows = String.valueOf(produkte.size() - 1);
 		navigateToEditor(p);
+	}
+
+	public void createLieferant() {
+		this.setTabIndex(2);
+		Lieferant l = new Lieferant();
+		lieferanten.add(l);
+		setSelectedLieferant(l);
+		selectedRows = String.valueOf(produkte.size() - 1);
+		navigateToEditor(l);
+	}
+
+	private void navigateToEditor(Lieferant l) {
+
+		FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("selectedLieferant", l);
+		FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("selectedLieferantCopy", l.copy());
+		FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("serviceLieferant",
+				this.getServiceLieferant());
+		FacesContext.getCurrentInstance().getExternalContext().getRequestMap().put("productSearchBean", this);
+
+		FacesContext fc = FacesContext.getCurrentInstance();
+		NavigationHandler nav = fc.getApplication().getNavigationHandler();
+		try {
+			nav.handleNavigation(fc, null, "/lieferantEditor.xhtml");
+			fc.renderResponse();
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
 	}
 
 	private void navigateToEditor(Produkt p) {
@@ -417,28 +620,248 @@ public class ProductSearchBean {
 	}
 
 	public boolean deleteProdukt() {
+		this.setTabIndex(0);
 		Produkt p = getSelectedProdukt();
 		if (p != null) {
 			produkte.remove(p);
 			getServiceProdukt().remove(p);
 			setSelectedProdukt(null);
+		} else {
+			info("Bitte ein Produkt auswählen!");
+		}
+		return true;
+	}
+
+	public boolean deleteLieferant() {
+		this.setTabIndex(2);
+		Lieferant l = getSelectedLieferant();
+		if (l != null) {
+			lieferanten.remove(l);
+			getServiceLieferant().remove(l);
+			setSelectedLieferant(null);
+		} else {
+			info("Bitte einen Lieferanten auswählen!");
 		}
 		return true;
 	}
 
 	public void copyProdukt() {
+		this.setTabIndex(0);
 		if (this.getSelectedProdukt() != null) {
 			Produkt copy = this.getSelectedProdukt().copy();
+			copy.buildSerialnumber(serviceProdukt.getProdukte().size());
 			copy.setId(null);
 			this.getProdukte().add(copy);
+			selectedRows = String.valueOf(produkte.size() - 1);
 			this.navigateToEditor(copy);
 		} else {
-			FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", "Bitte einen Artikel auswählen!");
-			FacesContext.getCurrentInstance().addMessage(null, success);
+			info("Bitte einen Artikel auswählen!");
 		}
 	}
 
 	public void save() {
 		getServiceProdukt().persistProdukte(this.getProdukte());
+	}
+
+	public List<Auswertung> getSelectedAuswertungen() {
+		return selectedAuswertungen;
+	}
+
+	public void setSelectedAuswertungen(List<Auswertung> selectedAuswertungen) {
+		this.selectedAuswertungen = selectedAuswertungen;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
+	}
+
+	public void deleteFileAuswertung() {
+		this.setTabIndex(1);
+		if (!this.getSelectedAuswertungen().isEmpty()) {
+			Iterator<Auswertung> it = this.getSelectedAuswertungen().iterator();
+			while (it.hasNext()) {
+				Auswertung a = it.next();
+				if (a != null) {
+					this.setSelectedAuswertung(null);
+					this.auswertungen.remove(a);
+					serviceAuswertung.remove(a);
+				}
+			}
+		} else {
+			info("Bitte ein Auswertungsdatei auswählen!");
+		}
+	}
+
+	public String getSelectedRowsAuswertung() {
+		return selectedRowsAuswertung;
+	}
+
+	public void setSelectedRowsAuswertung(String selectedRows) {
+		this.selectedRowsAuswertung = selectedRows;
+	}
+
+	public Auswertung getSelectedAuswertung() {
+		return selectedAuswertung;
+	}
+
+	public void setSelectedAuswertung(Auswertung selectedFile) {
+		this.selectedAuswertung = selectedFile;
+	}
+
+	public List<Auswertung> getAuswertungen() {
+		return auswertungen;
+	}
+
+	public void setAuswertungen(List<Auswertung> files) {
+		this.auswertungen = files;
+	}
+
+	public void onDeselectAuswertung(Auswertung f, String typeOfSelection, String indexes) {
+		// setSelectedAuswertung(null);
+		if (null != f) {
+			getSelectedAuswertungen().remove(f);
+		} else if (null != indexes) {
+			if (indexes.startsWith("[")) {
+				indexes = indexes.substring(1, indexes.length() - 1);
+			}
+			String[] indexArray = indexes.split(",");
+			for (String index : indexArray) {
+				int i = Integer.valueOf(index);
+				getSelectedAuswertungen().remove(auswertungen.get(i));
+			}
+		}
+		if (!indexes.startsWith("[")) {
+			selectedRowsAuswertung = "";
+		} else {
+			selectedRowsAuswertung = indexes;
+		}
+		// this.setButtonsDisabled(true);
+	}
+
+	public void onSelectAuswertung(Auswertung f, String typeOfSelection, String indexes) {
+		// setSelectedAuswertung(f);
+		if (null != f) {
+			getSelectedAuswertungen().add(f);
+		} else if (null != indexes) {
+			if (indexes.startsWith("[")) {
+				indexes = indexes.substring(1, indexes.length() - 1);
+			}
+			String[] indexArray = indexes.split(",");
+			for (String index : indexArray) {
+				int i = Integer.valueOf(index);
+				Auswertung newAuswertung = auswertungen.get(i);
+				if (!getSelectedAuswertungen().contains(newAuswertung)) {
+					getSelectedAuswertungen().add(newAuswertung);
+				}
+			}
+		}
+		selectedRowsAuswertung = indexes;
+		// this.setButtonsDisabled(false);
+	}
+
+	public UploadedFile getFileAuswertung() {
+		return fileAuswertung;
+	}
+
+	public void setFileAuswertung(UploadedFile file) {
+		this.fileAuswertung = file;
+	}
+
+	public String auswertenAll() {
+		this.setTabIndex(1);
+		this.getErgebnisse().clear();
+		ProduktLister lister = new ProduktLister();
+		Map<Produkt, Integer> result = lister.readFiles(this.getAuswertungen());
+		Iterator<Produkt> it = result.keySet().iterator();
+		while (it.hasNext()) {
+			Produkt p = it.next();
+			Ergebnis e = new Ergebnis();
+			e.setProdukt(p);
+			e.setCount(result.get(p));
+			addErgebnisse(e);
+		}
+		this.setSelectedAuswertungen(new ArrayList<>());
+		this.info("Es wurden Ergebnisse für " + this.getErgebnisse().size() + " Artikel gefunden!");
+		return null;
+	}
+
+	public String auswerten() {
+		this.setTabIndex(1);
+		this.getErgebnisse().clear();
+		if (this.getSelectedAuswertungen().isEmpty()) {
+			FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", "Bitte eine Auswertung auswählen!");
+			FacesContext.getCurrentInstance().addMessage(null, success);
+		} else {
+			ProduktLister lister = new ProduktLister();
+			Map<Produkt, Integer> result = lister.readFiles(this.getSelectedAuswertungen());
+			Iterator<Produkt> it = result.keySet().iterator();
+			while (it.hasNext()) {
+				Produkt p = it.next();
+				Ergebnis e = new Ergebnis();
+				e.setProdukt(p);
+				e.setCount(result.get(p));
+				addErgebnisse(e);
+			}
+			this.info("Es wurden Ergebnisse für " + this.getErgebnisse().size() + " Artikel gefunden!");
+			this.setSelectedAuswertungen(new ArrayList<>());
+		}
+		return null;
+	}
+
+	private void addErgebnisse(Ergebnis e) {
+		ergebnisse.add(e);
+
+	}
+
+	public List<Ergebnis> getErgebnisse() {
+		return ergebnisse;
+	}
+
+	public void setErgebnisse(List<Ergebnis> ergebnisse) {
+		this.ergebnisse = ergebnisse;
+	}
+
+	public String uploadAuswertung() {
+		this.setTabIndex(1);
+		if (fileAuswertung.getFileName() != null && !fileAuswertung.getFileName().isEmpty()) {
+			try {
+				byte[] bytes = IOUtils.toByteArray(fileAuswertung.getInputstream());
+				ProduktImporter i = new ProduktImporter();
+				Date dateFromFile = i.readDate(bytes);
+				Date d = null;
+				Auswertung a = new Auswertung();
+				if (dateFromFile != null) {
+					d = dateFromFile;
+				} else {
+					d = this.getDate();
+				}
+				if (d != null) {
+					a.setDate(d);
+					a.setData(bytes);
+					a.setFilename(fileAuswertung.getFileName());
+					this.getAuswertungen().add(a);
+					serviceAuswertung.persist(a);
+				} else {
+					info("Bitte ein Datum definieren!");
+				}
+			} catch (
+
+			IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return "";
+
+	}
+
+	public void fileUploadListenerAuswertung(FileUploadEvent e) {
+		this.setTabIndex(1);
+		// Get uploaded file from the FileUploadEvent
+		this.fileAuswertung = e.getFile();
+		// Print out the information of the file
 	}
 }

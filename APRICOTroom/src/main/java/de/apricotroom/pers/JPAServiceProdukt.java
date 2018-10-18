@@ -18,30 +18,40 @@ public class JPAServiceProdukt extends JPAService {
 	protected String getClassName() {
 		return Produkt.class.getName();
 	}
+
 	public void persistProdukte(List<Produkt> list) {
+		int count = 0;
 		Iterator<Produkt> it = list.iterator();
-		while(it.hasNext()) {
-			persist(it.next());
+		while (it.hasNext()) {
+			Produkt p = it.next();
+			persist(p);
+			if (p.getDescription() == null || p.getDescription().isEmpty()) {
+				System.out.println(count++);
+				System.out.println(p.getSerialnumber());
+				System.out.println(p.getId());
+			}
 		}
 	}
+
 	public void removeAll(List<Produkt> entities) {
 		Iterator<Produkt> it = entities.iterator();
-		while(it.hasNext()) {
+		while (it.hasNext()) {
 			remove(it.next());
 		}
 	}
+
 	public static void main(String[] args) {
-		
+
 		List<Lieferant> suppliers = new JPAServiceLieferant().getLieferanten();
 		Lieferant s = null;
-		if(!suppliers.isEmpty()) {
+		if (!suppliers.isEmpty()) {
 			s = suppliers.get(0);
 		}
-		
+
 		Produkt p = new Produkt();
 		p.setName("Halskette");
 		p.setDescription("Eine sehr schöne Halskette");
-		p.setLength(40);
+		p.setLength("30-40 cm");
 		p.setPurchasePrice(new Double(3));
 		p.setSellingPrice(new Double(19));
 		p.setSalePrice(new Double(9.9));
@@ -49,11 +59,11 @@ public class JPAServiceProdukt extends JPAService {
 		p.setLieferant(s);
 		JPAServiceProdukt service = new JPAServiceProdukt();
 		service.persist(p);
-		
+
 		List<Produkt> produkte = service.getProdukte();
-		
-		
-	}	
+
+	}
+
 	public List<Produkt> getProdukte() {
 		// create query
 		List<Produkt> resultList = null;
@@ -69,6 +79,7 @@ public class JPAServiceProdukt extends JPAService {
 
 		return resultList;
 	}
+
 	public Produkt getProduktBySerial(String serial) {
 		Produkt l = null;
 		List<Produkt> result = null;
@@ -83,6 +94,6 @@ public class JPAServiceProdukt extends JPAService {
 			l = result.get(0);
 		}
 		return l;
-		
+
 	}
 }

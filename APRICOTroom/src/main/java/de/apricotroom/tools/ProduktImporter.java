@@ -3,6 +3,7 @@ package de.apricotroom.tools;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -54,6 +55,24 @@ public class ProduktImporter {
 			e.printStackTrace();
 		}
 		return newProdukte;
+	}
+
+	public java.util.Date readDate(byte[] b) {
+		java.util.Date d = null;
+		try {
+			ByteArrayInputStream excelFile = new ByteArrayInputStream(b);
+			Workbook workbook = new HSSFWorkbook(excelFile);
+			Sheet sheetDate = workbook.getSheetAt(0);
+			Row row = sheetDate.getRow(0);
+			Cell c = row.getCell(3);
+			if (c != null) {
+				d = c.getDateCellValue();
+			}
+			workbook.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return d;
 	}
 
 	private List<Produkt> readFile(Workbook workbook, List<Produkt> newProdukte) throws IOException {

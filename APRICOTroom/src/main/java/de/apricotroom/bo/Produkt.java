@@ -9,7 +9,7 @@ public class Produkt {
 	private Double salePrice;
 	private String serialnumber;
 	private int size;
-	private int length;
+	private String length;
 	private Lieferant lieferant;
 	private String kategorie;
 	private String farbe;
@@ -77,8 +77,10 @@ public class Produkt {
 	}
 
 	public void setFarbe(String farbe) {
-		this.farbe = farbe;
-		this.buildSerialnumber();
+		if (!"Keine Auswahl".equals(farbe)) {
+			this.farbe = farbe;
+			this.buildSerialnumber();
+		}
 	}
 
 	public String getKategorie() {
@@ -159,11 +161,11 @@ public class Produkt {
 		this.buildSerialnumber();
 	}
 
-	public int getLength() {
+	public String getLength() {
 		return length;
 	}
 
-	public void setLength(int length) {
+	public void setLength(String length) {
 		this.length = length;
 	}
 
@@ -190,6 +192,11 @@ public class Produkt {
 		copy.setSalePrice(p.getSalePrice());
 		copy.setSellingPrice(p.getSellingPrice());
 		copy.setSize(p.getSize());
+		copy.setGenerated(false);
+		copy.setMaterial(p.getMaterial());
+		copy.setKategorie(p.getKategorie());
+		copy.setFarbe(p.getFarbe());
+		copy.setGemstone(p.isGemstone());
 		return copy;
 	}
 
@@ -206,7 +213,7 @@ public class Produkt {
 	}
 
 	public void buildSerialnumber() {
-		if (this.isImported()) {
+		if (!this.isImported() || this.getId() == null) {
 			this.buildSerialnumber(counter);
 		}
 

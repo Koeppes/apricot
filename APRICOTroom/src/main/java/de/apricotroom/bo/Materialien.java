@@ -1,7 +1,5 @@
 package de.apricotroom.bo;
 
-import java.util.stream.Stream;
-
 public enum Materialien {
 	KEINE_AUSWAHL("Keine Auswahl", "00"), VERGOLDETES_SILBER("Vergoldetes Silber", "01"), SILBER("Silber",
 			"02"), VERGOLDET("Vergoldet", "03"), VERSILBERT_RHODINIERT("Versilbert/Rhodiniert",
@@ -32,6 +30,19 @@ public enum Materialien {
 		for (int i = 0; i < Materialien.values().length && result == null; i++) {
 			Materialien m = Materialien.values()[i];
 			if (m.getValue().equalsIgnoreCase(v)) {
+				result = m;
+			}
+		}
+		return result;
+	}
+
+	public static Materialien ofToString(String v) {
+		Materialien result = null;
+		// return Stream.of(Kategorien.values()).filter(value ->
+		// value.getValue().equals(v)).findFirst().orElse(null);
+		for (int i = 0; i < Materialien.values().length && result == null; i++) {
+			Materialien m = Materialien.values()[i];
+			if (m.toString().equalsIgnoreCase(v)) {
 				result = m;
 			}
 		}

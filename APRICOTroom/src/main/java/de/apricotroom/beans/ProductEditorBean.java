@@ -79,7 +79,7 @@ public class ProductEditorBean {
 		return farben;
 	}
 
-	public boolean getSizeVisible() {
+	public boolean isSizeVisible() {
 		return Kategorien.RING.getValue().equals(this.getSelectedProdukt().getKategorie());
 	}
 
@@ -165,7 +165,6 @@ public class ProductEditorBean {
 		Produkt p = (Produkt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
 				.get("selectedProdukt");
 		Lieferant lieferant = p.getLieferant();
-		System.out.println(lieferant);
 		this.setSelectedProdukt(p);
 		Produkt copy = (Produkt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
 				.get("selectedProduktCopy");
@@ -214,9 +213,54 @@ public class ProductEditorBean {
 
 	public void save() {
 		if (this.getSelectedProdukt() != null) {
-			getServiceProdukt().persist(this.getSelectedProdukt());
+			if (this.getSelectedProdukt().getDescription() == null
+					|| this.getSelectedProdukt().getDescription().isEmpty()) {
+				info("Bitte einen Namen vergeben!");
+			} else {
+				if (this.getSelectedProdukt().getKategorie() == null
+						|| "Keine Auswahl".equals(this.getSelectedProdukt().getKategorie())
+						|| this.getSelectedProdukt().getKategorie().isEmpty()) {
+					info("Bitte eine Kategorie auswählen!");
+				} else {
+					if (Kategorien.RING.getValue().equals(this.getSelectedProdukt().getKategorie())
+							&& this.getSelectedProdukt().getSize() == 0) {
+						info("Bitte eine Größe auswählen!");
+					} else {
+						if (this.getSelectedProdukt().getSellingPrice() == null) {
+							info("Bitte einen Preis definieren!");
+						} else {
+							if (this.getSelectedProdukt().getMaterial() == null
+									|| "Keine Auswahl".equals(this.getSelectedProdukt().getMaterial())
+									|| this.getSelectedProdukt().getMaterial().isEmpty()) {
+								info("Bitte ein Material auswählen!");
+							} else {
+								if (this.getSelectedProdukt().getLieferant() == null
+										|| this.getSelectedProdukt().getLieferant().getId() == -1) {
+									info("Bitte einen Lieferanten auswählen!");
+								} else {
+
+									if (this.getSelectedProdukt().isGemstone()
+											&& (this.getSelectedProdukt().getEdelstein() == null
+													|| this.getSelectedProdukt().getEdelstein().isEmpty())) {
+										info("Bitte einen Edelstein auswählen!");
+
+									} else {
+										getServiceProdukt().persist(this.getSelectedProdukt());
+										navigateBack("save");
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
-		navigateBack("save");
+
+	}
+
+	public void info(String message) {
+		FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", message);
+		FacesContext.getCurrentInstance().addMessage(null, success);
 	}
 
 	public void navigateBack(String action) {

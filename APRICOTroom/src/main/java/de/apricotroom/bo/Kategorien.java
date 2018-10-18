@@ -32,7 +32,18 @@ public enum Kategorien {
 		}
 		return result;
 	}
-
+	public static Kategorien ofToString(String v) {
+		Kategorien result = null;
+		// return Stream.of(Kategorien.values()).filter(value ->
+		// value.getValue().equals(v)).findFirst().orElse(null);
+		for (int i = 0; i < Kategorien.values().length && result == null; i++) {
+			Kategorien k = Kategorien.values()[i];
+			if (k.toString().equals(v)) {
+				result = k;
+			}
+		}
+		return result;
+	}
 	public String toString() {
 		if (this.getValue().equals("Keine Auswahl")) {
 			return this.getValue();

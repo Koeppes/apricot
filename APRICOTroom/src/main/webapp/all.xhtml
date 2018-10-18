@@ -10,28 +10,27 @@
 </h:head>
 
 <h:body>
-	<b:panel look="success" title="Artikel" />
-	<b:tabView>
-		<b:tab title="Bearbeiten">
-			<b:messages id="nachrichtenArtikel" showDetail="true"
-				showSummary="false" />
+	<b:growl id="growl" globalOnly="true" showDetail="true"
+		severity="info,warn" />
+	<b:tabView active-index="#{productSearchBean.tabIndex}">
+		<b:tab title="Artikel">
 			<h:form id="productSearch">
-				<b:panel look="success" title="Artikel filtern" />
+				<b:panel collapsible="false"
+					style="background-color:#F3D5B7;border-color:#F3D5B7"
+					title="Bearbeiten" />
 				<b:panelGrid columns="6">
-					<b:selectOneMenu
-						value="#{productSearchBean.selectedFilterKategorie}" ajax="true"
-						process="@this" label="Kategorie">
-						<f:selectItems value="#{productSearchBean.kategorien}"
-							var="kategorie" itemValue="#{kategorie}"
-							itemLabel="#{kategorie}" />
-					</b:selectOneMenu>
-					<b:selectOneMenu
-						value="#{productSearchBean.selectedFilterMaterial}" ajax="true"
-						process="@this" label="Material">
-						<f:selectItems value="#{productSearchBean.materialien}"
-							var="material" itemValue="#{material}"
-							itemLabel="#{material}" />
-					</b:selectOneMenu>
+					<b:selectMultiMenu
+						value="#{productSearchBean.selectedFilterKategorieString}"
+						ajax="true" process="@this" label="Kategorie">
+						<f:selectItems value="#{productSearchBean.kategorienString}"
+							var="kategorie" itemValue="#{kategorie}" itemLabel="#{kategorie}" />
+					</b:selectMultiMenu>
+					<b:selectMultiMenu
+						value="#{productSearchBean.selectedFilterMaterialString}"
+						ajax="true" process="@this" label="Material">
+						<f:selectItems value="#{productSearchBean.materialienString}"
+							var="material" itemValue="#{material}" itemLabel="#{material}" />
+					</b:selectMultiMenu>
 					<b:selectOneMenu
 						value="#{productSearchBean.selectedFilterLieferant}" ajax="true"
 						process="@this" label="Lieferant">
@@ -83,44 +82,40 @@
 							value="#{produkt.sellingPrice}" />
 						<b:dataTableColumn label="Reduzierter Preis"
 							value="#{produkt.salePrice}" />
-						<f:ajax render="deleteButton editButton copyButton" />
 					</b:dataTable>
 				</b:panelGrid>
-				<b:buttonGroup id="buttonGroup">
-					<b:commandButton
-						actionListener="#{productSearchBean.createProdukt}" value="Neu"
-						update="@form" />
-					<b:commandButton id="editButton"
-						disabled="#{productSearchBean.buttonsDisabled}"
-						actionListener="#{productSearchBean.editProdukt}"
-						value="Bearbeiten" />
-					<b:button onclick="$('.deleteDialog').modal('show')"
-						value="Löschen" />
-					<b:modal title="Achtung" closable="false" closeOnEscape="true"
-						styleClass="deleteDialog">
-						<p>Produkt löschen?</p>
-						<b:row>
-							<b:column>
-								<b:button id="deleteButton" largeScreen="half" value="Abbrechen"
-									dismiss="modal" onclick="return false;" />
-								<b:commandButton largeScreen="half" update="@form"
-									actionListener="#{productSearchBean.deleteProdukt}"
-									onclick="return true;"
-									oncomplete="{ $('.deleteDialog').modal('hide') } "
-									dismiss="modal" value="OK" look="success" />
-							</b:column>
-						</b:row>
-					</b:modal>
-					<b:commandButton actionListener="#{productSearchBean.copyProdukt}"
-						disabled="#{productSearchBean.buttonsDisabled}" id="copyButton"
-						value="Kopieren" />
-					<b:commandButton actionListener="#{productSearchBean.abmelden}"
-						value="Abmelden" update="@form" />
-				</b:buttonGroup>
-				<b:message />
+				<b:commandButton actionListener="#{productSearchBean.createProdukt}"
+					value="Neu" update="@form" />
+				<b:commandButton id="editButton"
+					disabled="#{productSearchBean.buttonsDisabled}"
+					actionListener="#{productSearchBean.editProdukt}"
+					value="Bearbeiten" update="growl" />
+				<b:button onclick="$('.deleteDialog').modal('show')" value="Löschen" />
+				<b:modal title="Achtung" closable="false" closeOnEscape="true"
+					styleClass="deleteDialog" update="growl">
+					<p>Produkt löschen?</p>
+					<b:row>
+						<b:column>
+							<b:button id="deleteButton" largeScreen="half" value="Abbrechen"
+								dismiss="modal" onclick="return false;" />
+							<b:commandButton largeScreen="half" update="@form"
+								actionListener="#{productSearchBean.deleteProdukt}"
+								process="dataTableProdukte" onclick="return true;"
+								oncomplete="{ $('.deleteDialog').modal('hide') } "
+								dismiss="modal" value="OK" look="success" />
+						</b:column>
+					</b:row>
+				</b:modal>
+				<b:commandButton actionListener="#{productSearchBean.copyProdukt}"
+					disabled="#{productSearchBean.buttonsDisabled}" id="copyButton"
+					update="growl" value="Kopieren" />
+				<b:commandButton actionListener="#{productSearchBean.abmelden}"
+					value="Abmelden" update="@form" />
 				<p:separator />
 			</h:form>
-			<b:panel look="success" title="Artikel importieren" />
+			<b:panel collapsible="false"
+				style="background-color:#F3D5B7;border-color:#F3D5B7"
+				title="Artikel importieren" />
 			<h:form enctype="multipart/form-data">
 				<p:fileUpload value="#{productSearchBean.importFile}" mode="simple"
 					fileUploadListener="#{productSearchBean.fileUploadListener}"></p:fileUpload>
@@ -132,40 +127,81 @@
 
 		</b:tab>
 		<b:tab title="Auswerten">
+			<b:panel collapsible="false"
+				style="background-color:#F3D5B7;border-color:#F3D5B7"
+				title="Dateien" />
 			<h:form id="formAuswertung">
-				<b:messages id="nachrichtenAuswertung" showDetail="true"
-					showSummary="false" />
 				<b:dataTable id="dataTableAuswertung"
-					value="#{auswertungBean.auswertungen}" var="auswertung"
-					onselect="ajax:auswertungBean.onSelect(auswertung, typeOfSelection, indexes);"
-					ondeselect="ajax:auswertungBean.onDeselect(auswertung, typeOfSelection, indexes);"
-					selected-row="#{auswertungBean.selectedRows}" select="true"
-					selectionMode="single">
+					value="#{productSearchBean.auswertungen}" var="auswertung"
+					onselect="ajax:productSearchBean.onSelectAuswertung(auswertung, typeOfSelection, indexes);"
+					ondeselect="ajax:productSearchBean.onDeselectAuswertung(auswertung, typeOfSelection, indexes);"
+					select="true" selectionMode="multiple">
 					<b:dataTableColumn label="Dateiname" id="columnName"
 						value="#{auswertung.filename}" />
+					<b:dataTableColumn label="Datum" id="columnDate"
+						value="#{auswertung.formattedDate}" />
 				</b:dataTable>
+				<b:panelGrid columns="3">
+					<b:dateTimePicker mode="toggle-icon" showWeek="true"
+						format="DD.MM.YYYY"
+						value="#{productSearchBean.filterDateAuswertungVon}"
+						label="Datum von:" />
+					<b:dateTimePicker mode="toggle-icon" showWeek="true"
+						format="DD.MM.YYYY"
+						value="#{productSearchBean.filterDateAuswertungBis}"
+						label="Datum bis:" />
+					<b:commandButton
+						actionListener="#{productSearchBean.filterAuswertungen}"
+						value="Filtern" />
+				</b:panelGrid>
 				<b:buttonGroup id="buttonGroupAuswertung">
 					<b:commandButton styleClass="auswertenButton" id="auswertenButton"
-						actionListener="#{auswertungBean.auswerten}" value="Auswerten" />
+						actionListener="#{productSearchBean.auswerten}" value="Auswerten" />
 					<b:commandButton id="auswertenButtonAll"
-						actionListener="#{auswertungBean.auswertenAll}"
+						actionListener="#{productSearchBean.auswertenAll}"
 						value="Alle Auswerten" />
+					<b:button onclick="$('.deleteDialogAuswertung').modal('show')"
+						value="Löschen" />
+					<b:modal title="Achtung" closable="false" closeOnEscape="true"
+						styleClass="deleteDialogAuswertung" update="growl">
+						<p>Auswertung(en) löschen?</p>
+						<b:row>
+							<b:column>
+								<b:button id="deleteButtonAuswertung" largeScreen="half"
+									value="Abbrechen" dismiss="modal" onclick="return false;" />
+								<b:commandButton largeScreen="half" update="@form"
+									actionListener="#{productSearchBean.deleteFileAuswertung}"
+									onclick="return true;" process="dataTableAuswertung"
+									oncomplete="{ $('.deleteDialogLieferant').modal('hide') } "
+									dismiss="modal" value="OK" look="success" />
+							</b:column>
+						</b:row>
+					</b:modal>
 				</b:buttonGroup>
 				<p:separator />
 				<br />
 			</h:form>
-
+			<b:panel collapsible="false"
+				style="background-color:#F3D5B7;border-color:#F3D5B7"
+				title="Dateien hochladen" />
 			<h:form enctype="multipart/form-data">
-				<p:fileUpload value="#{auswertungBean.file}" mode="simple"
-					fileUploadListener="#{auswertungBean.fileUploadListener}"></p:fileUpload>
-				<h:commandButton value="Hochladen" action="#{auswertungBean.upload}"></h:commandButton>
+				<b:dateTimePicker mode="toggle-icon" showWeek="true"
+					format="DD.MM.YYYY" value="#{productSearchBean.date}"
+					label="Datum:" label-col-sm="3" col-sm="6" />
+				<p:fileUpload value="#{productSearchBean.fileAuswertung}"
+					mode="simple"
+					fileUploadListener="#{productSearchBean.fileUploadListenerAuswertung}"></p:fileUpload>
+				<h:commandButton value="Hochladen"
+					action="#{productSearchBean.uploadAuswertung}"></h:commandButton>
 				<p:separator />
 				<br />
 			</h:form>
-
+			<b:panel collapsible="false"
+				style="background-color:#F3D5B7;border-color:#F3D5B7"
+				title="Ergebnis" />
 			<h:form>
 				<b:dataTable id="dataTableErgebnisse" excel="true" pdf="true"
-					print="true" value="#{auswertungBean.ergebnisse}" var="ergebnis"
+					print="true" value="#{productSearchBean.ergebnisse}" var="ergebnis"
 					selectionMode="single">
 					<b:dataTableColumn label="Seriennummer" id="columnSerial"
 						value="#{ergebnis.produkt.serialnumber}" />
@@ -179,14 +215,48 @@
 			</h:form>
 		</b:tab>
 		<b:tab title="Lieferanten">
-			<b:dataTable id="dataTableLiefernaten" excel="true" pdf="true"
-				print="true" value="#{lieferantenBean.lieferanten}" var="lieferant"
-				selectionMode="single">
-				<b:dataTableColumn label="ID" id="columnIDLieferant"
-					styleClass="width:100px;" value="#{lieferant.id}" />
-				<b:dataTableColumn label="Name" id="columnNameLieferant"
-					value="#{lieferant.name}" />
-			</b:dataTable>
+			<h:form>
+				<b:panelGrid columns="1">
+					<b:dataTable id="dataTableLieferanten" excel="true" pdf="true"
+						print="true" value="#{productSearchBean.lieferanten}"
+						var="lieferant"
+						onselect="ajax:productSearchBean.onSelectLieferant(lieferant, typeOfSelection, indexes);"
+						ondeselect="ajax:productSearchBean.onDeselectLieferant(lieferant, typeOfSelection, indexes);"
+						select="true" selectionMode="single">
+						<b:dataTableColumn label="Nr" id="columnIDLieferant"
+							styleClass="width:100px;" value="#{lieferant.nr}" />
+						<b:dataTableColumn label="Name" id="columnNameLieferant"
+							value="#{lieferant.name}" />
+					</b:dataTable>
+				</b:panelGrid>
+				<b:buttonGroup>
+					<b:commandButton
+						actionListener="#{productSearchBean.createLieferant}" value="Neu"
+						update="@form" process="dataTableLieferanten" />
+					<b:commandButton
+						actionListener="#{productSearchBean.editLieferant}"
+						value="Bearbeiten" update="growl" />
+					<b:button onclick="$('.deleteDialogLieferant').modal('show')"
+						value="Löschen" />
+					<b:modal title="Achtung" closable="false" closeOnEscape="true"
+						styleClass="deleteDialogLieferant" update="growl">
+						<p>Lieferant löschen?</p>
+						<b:row>
+							<b:column>
+								<b:button id="deleteButton" largeScreen="half" value="Abbrechen"
+									dismiss="modal" onclick="return false;" />
+								<b:commandButton largeScreen="half" update="@form"
+									actionListener="#{productSearchBean.deleteLieferant}"
+									onclick="return true;" process="dataTableLieferanten"
+									oncomplete="{ $('.deleteDialog').modal('hide') } "
+									dismiss="modal" value="OK" look="success" />
+							</b:column>
+						</b:row>
+					</b:modal>
+					<b:commandButton actionListener="#{productSearchBean.abmelden}"
+						value="Abmelden" update="@form" />
+				</b:buttonGroup>
+			</h:form>
 		</b:tab>
 	</b:tabView>
 </h:body>

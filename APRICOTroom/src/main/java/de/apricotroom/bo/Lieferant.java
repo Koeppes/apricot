@@ -8,11 +8,11 @@ public class Lieferant {
 	private String name;
 	private int nr;
 
-	public int getNr() {
+	public Integer getNr() {
 		return nr;
 	}
 
-	public void setNr(int nr) {
+	public void setNr(Integer nr) {
 		this.nr = nr;
 	}
 
@@ -32,11 +32,26 @@ public class Lieferant {
 		this.name = name;
 	}
 
+	public void rollback(Lieferant p) {
+		this.setName(p.getName());
+		this.setNr(p.getNr());
+	}
+
 	public String toString() {
 		if (this.getName().equals("Keine Auswahl")) {
 			return this.getName();
 		} else {
 			return this.getName() + "(" + this.getNr() + ")";
 		}
+	}
+	public Lieferant copy() {
+		return copy(this);
+	}
+
+	public Lieferant copy(Lieferant l) {
+		Lieferant copy = new Lieferant();
+		copy.setName(l.getName());
+		copy.setNr(l.getNr());
+		return copy;
 	}
 }

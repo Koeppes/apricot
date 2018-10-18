@@ -29,6 +29,7 @@ public class ProduktGenerator {
 	public static void main(String[] args) {
 		ProduktGenerator pg = new ProduktGenerator();
 		pg.readFile("/Users/jurgenhochkoppler/git/APRICOTroom/src/main/java/de/apricotroom/tools/masterlisteCopy.xls");
+		System.exit(0);
 	}
 
 	public void readFile(String filename) {
@@ -152,6 +153,10 @@ public class ProduktGenerator {
 					if (j == 8) {
 						p.setSellingPrice(cell.getNumericCellValue());
 					}
+					if (j == 9) {
+						cell.setCellType(CellType.STRING);
+						p.setLength(cell.getStringCellValue());
+					}
 					// lieferant
 					if (j == 10) {
 						try {
@@ -195,6 +200,13 @@ public class ProduktGenerator {
 					if (j == 2) {
 						int cell1Value = (int) cell.getNumericCellValue();
 						serial1 = "0" + cell1Value;
+						if(serial1.length() == 4){
+							Materialien m = Materialien.ofIndex(serial1.substring(2, 4));
+							if(m != null) {
+								p.setMaterial(m.getValue());
+							}
+	
+						}
 					}
 					// serialPart2
 					if (j == 3) {
@@ -202,10 +214,6 @@ public class ProduktGenerator {
 						serial2 = cell.getStringCellValue();
 						if (serial2.length() == 1) {
 							serial2 = "0" + serial2;
-						}
-						Materialien m = Materialien.ofIndex(serial2);
-						if(m != null) {
-							p.setMaterial(m.getValue());
 						}
 						if (serial2.length() > 2) {
 							serial12 = serial1 + serial2.substring(0, 2);
@@ -288,6 +296,9 @@ public class ProduktGenerator {
 							}
 						} else {
 							p.setDescription(desc);
+						}
+						if(desc == null || desc.isEmpty()) {
+							System.out.println(p.getSerialnumber());
 						}
 					}
 					// price

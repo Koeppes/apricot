@@ -12,102 +12,97 @@
 		rendered="#{themeSelectorBean.bootswatchTheme}"></h:outputStylesheet>
 </h:head>
 <h:body>
-	<b:panel look="success" title="Produkte bearbeiten">
-		<b:container>
-			<h:form id="productEditor">
-				<b:panelGrid columns="1">
-					<b:inputText id="name"
-						value="#{productEditorBean.selectedProdukt.description}"
-						label="Name">
-					</b:inputText>
-					<b:message for="name" />
-					<b:inputText id="serialnumber" disabled="true"
-						value="#{productEditorBean.selectedProdukt.serialnumber}"
-						label="Seriennummer" />
-					<b:message for="serialnumber" />
-					<b:inputText id="purchasePrice"
-						value="#{productEditorBean.selectedProdukt.purchasePrice}"
-						label="Einkaufspreis" />
-					<b:message for="purchasePrice" />
-					<b:inputText id="sellingPrice"
-						value="#{productEditorBean.selectedProdukt.sellingPrice}"
-						label="Verkaufspreis" />
-					<b:message for="sellingPrice" />
-					<b:inputText id="salePrice"
-						value="#{productEditorBean.selectedProdukt.salePrice}"
-						label="Reduzierter Preis" />
-					<b:message for="salePrice" />
-					<b:selectOneMenu
-						value="#{productEditorBean.selectedProdukt.lieferant}" ajax="true"
-						process="@this" update="@after" label="Lieferanten">
-						<f:selectItems value="#{productEditorBean.suppliers}"
-							var="supplier" itemValue="#{supplier}"
-							itemLabel="#{supplier.name}" />
-					</b:selectOneMenu>
-					<b:selectOneMenu
-						value="#{productEditorBean.selectedProdukt.kategorie}"
-						label="Kategorie">
-						<f:selectItems value="#{productEditorBean.kategorien}"
-							var="category" itemValue="#{category.value}"
-							itemLabel="#{category.value}" />
-						<f:ajax render="serialnumber panelSize" event="blur"
-							execute="@this" />
-						<f:ajax render="serialnumber panelSize" event="change"
-							execute="@this" />
-					</b:selectOneMenu>
-					<b:panel id="panelSize"
-						contentDisabled="#{!productEditorBean.sizeVisible}">
-						<b:selectOneMenu id="selectOneMenuSize"
-							value="#{productEditorBean.selectedProdukt.size}" label="Größe">
-							<f:selectItems value="#{productEditorBean.ringgroessen}"
-								var="size" itemValue="#{size.size}" itemLabel="#{size.value}" />
-							<f:ajax render="serialnumber" />
-						</b:selectOneMenu>
-					</b:panel>
-					<b:selectBooleanCheckbox caption="Generiert" id="checkBoxGenerated"
-						disabled="true"
-						value="#{productEditorBean.selectedProdukt.generated}"></b:selectBooleanCheckbox>
-					<b:selectBooleanCheckbox caption="Edelstein" id="checkBoxGemstone"
-						disabled="#{productEditorBean.selectedProdukt.generated}"
-						value="#{productEditorBean.selectedProdukt.gemstone}">
-						<f:ajax render="panelEdelstein selectOneMenuGemstone serialnumber" />
-					</b:selectBooleanCheckbox>
-					<b:panel id="panelEdelstein"
-						contentDisabled="#{productEditorBean.edelsteinDisabled}">
-						<b:selectOneMenu id="selectOneMenuGemstone"
-							value="#{productEditorBean.selectedProdukt.edelstein}"
-							label="Edelstein">
-							<f:selectItems value="#{productEditorBean.edelsteine}"
-								var="edelstein" itemValue="#{edelstein.index}"
-								itemLabel="#{edelstein.value}" />
-							<f:ajax render="serialnumber" />
-						</b:selectOneMenu>
-					</b:panel>
-					<b:selectOneMenu value="#{productEditorBean.selectedProdukt.farbe}"
-						ajax="true" process="@this" update="@after" label="Farbe">
-						<f:selectItems value="#{productEditorBean.farben}" var="color"
-							itemValue="#{color.value}" itemLabel="#{color.value}" />
+	<b:panel collapsible="false"
+		style="background-color:#F3D5B7;border-color:#F3D5B7"
+		title="Produkte bearbeiten" />
+	<b:growl id="growl" globalOnly="true" showDetail="true"
+		severity="info,warn" />
+	<b:container>
+		<h:form id="productEditor">
+			<b:panelGrid columns="2">
+				<b:inputText id="name"
+					value="#{productEditorBean.selectedProdukt.description}"
+					label="Name">
+				</b:inputText>
+				<b:inputText id="serialnumber" disabled="true"
+					value="#{productEditorBean.selectedProdukt.serialnumber}"
+					label="Seriennummer" />
+				<b:selectOneMenu
+					value="#{productEditorBean.selectedProdukt.kategorie}"
+					label="Kategorie" update="panelSize">
+					<f:selectItems value="#{productEditorBean.kategorien}"
+						var="category" itemValue="#{category.value}"
+						itemLabel="#{category.value}" />
+					<f:ajax render="serialnumber panelSize" event="blur"
+						execute="@this" />
+					<f:ajax render="serialnumber panelSize" event="change"
+						execute="@this" />
+				</b:selectOneMenu>
+				<b:panel id="panelSize"
+					contentDisabled="#{!productEditorBean.sizeVisible}">
+					<b:selectOneMenu id="selectOneMenuSize"
+						value="#{productEditorBean.selectedProdukt.size}" label="Größe">
+						<f:selectItems value="#{productEditorBean.ringgroessen}"
+							var="size" itemValue="#{size.size}" itemLabel="#{size.value}" />
 						<f:ajax render="serialnumber" />
 					</b:selectOneMenu>
-					<b:selectOneMenu
-						value="#{productEditorBean.selectedProdukt.material}" ajax="true"
-						process="@this" update="@after" label="Material">
-						<f:selectItems value="#{productEditorBean.materialien}"
-							var="material" itemValue="#{material.value}"
-							itemLabel="#{material.value}" />
+				</b:panel>
+				<b:selectOneMenu
+					value="#{productEditorBean.selectedProdukt.material}" ajax="true"
+					process="@this" update="@after" label="Material">
+					<f:selectItems value="#{productEditorBean.materialien}"
+						var="material" itemValue="#{material.value}"
+						itemLabel="#{material.value}" />
+					<f:ajax render="serialnumber" />
+				</b:selectOneMenu>
+
+				<b:inputText id="sellingPrice"
+					value="#{productEditorBean.selectedProdukt.sellingPrice}"
+					label="Verkaufspreis" />
+				<b:inputText id="length"
+					value="#{productEditorBean.selectedProdukt.length}" label="Länge" />
+				<b:selectOneMenu
+					value="#{productEditorBean.selectedProdukt.lieferant}" ajax="true"
+					process="@this" update="@after" label="Lieferanten">
+					<f:selectItems value="#{productEditorBean.suppliers}"
+						var="supplier" itemValue="#{supplier}"
+						itemLabel="#{supplier.name}" />
+				</b:selectOneMenu>
+				<b:selectBooleanCheckbox caption="Generiert" id="checkBoxGenerated"
+					disabled="true"
+					value="#{productEditorBean.selectedProdukt.generated}"></b:selectBooleanCheckbox>
+				<b:selectBooleanCheckbox caption="Edelstein" id="checkBoxGemstone"
+					disabled="#{productEditorBean.selectedProdukt.generated}"
+					value="#{productEditorBean.selectedProdukt.gemstone}">
+					<f:ajax render="panelEdelstein selectOneMenuGemstone serialnumber" />
+				</b:selectBooleanCheckbox>
+				<b:panel id="panelEdelstein"
+					contentDisabled="#{productEditorBean.edelsteinDisabled}">
+					<b:selectOneMenu id="selectOneMenuGemstone"
+						value="#{productEditorBean.selectedProdukt.edelstein}"
+						label="Edelstein">
+						<f:selectItems value="#{productEditorBean.edelsteine}"
+							var="edelstein" itemValue="#{edelstein.index}"
+							itemLabel="#{edelstein.value}" />
 						<f:ajax render="serialnumber" />
 					</b:selectOneMenu>
-					<b:panelGrid columns="2">
-						<b:buttonGroup>
-							<b:commandButton actionListener="#{productEditorBean.save}"
-								value="Speichern" update="@form" />
-							<b:commandButton actionListener="#{productEditorBean.cancel}"
-								value="Abbrechen" update="@form" />
-						</b:buttonGroup>
-					</b:panelGrid>
+				</b:panel>
+				<b:selectOneMenu value="#{productEditorBean.selectedProdukt.farbe}"
+					ajax="true" process="@this" update="@after" label="Farbe">
+					<f:selectItems value="#{productEditorBean.farben}" var="color"
+						itemValue="#{color.value}" itemLabel="#{color.value}" />
+					<f:ajax render="serialnumber" />
+				</b:selectOneMenu>
+				<b:panelGrid columns="2">
+					<b:buttonGroup>
+						<b:commandButton actionListener="#{productEditorBean.save}"
+							value="Speichern" update="growl" />
+						<b:commandButton actionListener="#{productEditorBean.cancel}"
+							value="Abbrechen" update="@form" />
+					</b:buttonGroup>
 				</b:panelGrid>
-			</h:form>
-		</b:container>
-	</b:panel>
+			</b:panelGrid>
+		</h:form>
+	</b:container>
 </h:body>
 </html>
