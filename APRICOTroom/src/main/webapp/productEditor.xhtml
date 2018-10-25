@@ -27,17 +27,19 @@
 				<b:inputText id="serialnumber" disabled="true"
 					value="#{productEditorBean.selectedProdukt.serialnumber}"
 					label="Seriennummer" />
-				<b:selectOneMenu
-					value="#{productEditorBean.selectedProdukt.kategorie}"
-					label="Kategorie" update="panelSize">
-					<f:selectItems value="#{productEditorBean.kategorien}"
-						var="category" itemValue="#{category.value}"
-						itemLabel="#{category.value}" />
-					<f:ajax render="serialnumber panelSize" event="blur"
-						execute="@this" />
-					<f:ajax render="serialnumber panelSize" event="change"
-						execute="@this" />
-				</b:selectOneMenu>
+				<b:panel>
+					<b:selectOneMenu
+						value="#{productEditorBean.selectedProdukt.kategorie}"
+						label="Kategorie" update="panelSize">
+						<f:selectItems value="#{productEditorBean.kategorien}"
+							var="category" itemValue="#{category.value}"
+							itemLabel="#{category.value}" />
+						<f:ajax render="serialnumber panelSize" event="blur"
+							execute="@this" />
+						<f:ajax render="serialnumber panelSize" event="change"
+							execute="@this" />
+					</b:selectOneMenu>
+				</b:panel>
 				<b:panel id="panelSize"
 					contentDisabled="#{!productEditorBean.sizeVisible}">
 					<b:selectOneMenu id="selectOneMenuSize"
@@ -47,27 +49,30 @@
 						<f:ajax render="serialnumber" />
 					</b:selectOneMenu>
 				</b:panel>
-				<b:selectOneMenu
-					value="#{productEditorBean.selectedProdukt.material}" ajax="true"
-					process="@this" update="@after" label="Material">
-					<f:selectItems value="#{productEditorBean.materialien}"
-						var="material" itemValue="#{material.value}"
-						itemLabel="#{material.value}" />
-					<f:ajax render="serialnumber" />
-				</b:selectOneMenu>
-
+				<b:panel>
+					<b:selectOneMenu
+						value="#{productEditorBean.selectedProdukt.material}" ajax="true"
+						label="Material">
+						<f:selectItems value="#{productEditorBean.materialien}"
+							var="material" itemValue="#{material.value}"
+							itemLabel="#{material.value}" />
+						<f:ajax render="serialnumber" />
+					</b:selectOneMenu>
+				</b:panel>
+				<b:panel>
+					<b:selectOneMenu
+						value="#{productEditorBean.selectedProdukt.lieferant}" ajax="true"
+						label="Lieferanten">
+						<f:selectItems value="#{productEditorBean.suppliers}"
+							var="supplier" itemValue="#{supplier}"
+							itemLabel="#{supplier.name}" />
+					</b:selectOneMenu>
+				</b:panel>
 				<b:inputText id="sellingPrice"
 					value="#{productEditorBean.selectedProdukt.sellingPrice}"
 					label="Verkaufspreis" />
 				<b:inputText id="length"
 					value="#{productEditorBean.selectedProdukt.length}" label="Länge" />
-				<b:selectOneMenu
-					value="#{productEditorBean.selectedProdukt.lieferant}" ajax="true"
-					process="@this" update="@after" label="Lieferanten">
-					<f:selectItems value="#{productEditorBean.suppliers}"
-						var="supplier" itemValue="#{supplier}"
-						itemLabel="#{supplier.name}" />
-				</b:selectOneMenu>
 				<b:selectBooleanCheckbox caption="Generiert" id="checkBoxGenerated"
 					disabled="true"
 					value="#{productEditorBean.selectedProdukt.generated}"></b:selectBooleanCheckbox>
@@ -87,12 +92,14 @@
 						<f:ajax render="serialnumber" />
 					</b:selectOneMenu>
 				</b:panel>
-				<b:selectOneMenu value="#{productEditorBean.selectedProdukt.farbe}"
-					ajax="true" process="@this" update="@after" label="Farbe">
-					<f:selectItems value="#{productEditorBean.farben}" var="color"
-						itemValue="#{color.value}" itemLabel="#{color.value}" />
-					<f:ajax render="serialnumber" />
-				</b:selectOneMenu>
+				<b:panel>
+					<b:selectOneMenu value="#{productEditorBean.selectedProdukt.farbe}"
+						label="Farbe">
+						<f:selectItems value="#{productEditorBean.farben}" var="color"
+							itemValue="#{color.value}" itemLabel="#{color.value}" />
+						<f:ajax render="serialnumber" />
+					</b:selectOneMenu>
+				</b:panel>
 				<b:panelGrid columns="2">
 					<b:buttonGroup>
 						<b:commandButton actionListener="#{productEditorBean.save}"
@@ -101,6 +108,9 @@
 							value="Abbrechen" update="@form" />
 					</b:buttonGroup>
 				</b:panelGrid>
+				<b:panel title="Barcode">
+					<b:image value="#{productEditorBean.selectedProdukt.barcodeImage}" />
+				</b:panel>
 			</b:panelGrid>
 		</h:form>
 	</b:container>

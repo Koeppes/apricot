@@ -20,16 +20,10 @@ public class JPAServiceProdukt extends JPAService {
 	}
 
 	public void persistProdukte(List<Produkt> list) {
-		int count = 0;
 		Iterator<Produkt> it = list.iterator();
 		while (it.hasNext()) {
 			Produkt p = it.next();
 			persist(p);
-			if (p.getDescription() == null || p.getDescription().isEmpty()) {
-				System.out.println(count++);
-				System.out.println(p.getSerialnumber());
-				System.out.println(p.getId());
-			}
 		}
 	}
 

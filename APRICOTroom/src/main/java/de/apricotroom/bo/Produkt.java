@@ -15,7 +15,26 @@ public class Produkt {
 	private String farbe;
 	private String material;
 	private boolean generated;
+	private String barcodeImage;
+	public String getBarcodeImage() {
+		return barcodeImage;
+	}
+
+	public void setBarcodeImage(String barcodeImage) {
+		this.barcodeImage = barcodeImage;
+	}
+
+	public byte[] getBarcode() {
+		return barcode;
+	}
+
+	public void setBarcode(byte[] barcode) {
+		this.barcode = barcode;
+	}
+
 	private boolean imported;
+	private byte[] barcode;
+
 
 	public boolean isImported() {
 		return imported;

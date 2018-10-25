@@ -150,9 +150,6 @@
 						format="DD.MM.YYYY"
 						value="#{productSearchBean.filterDateAuswertungBis}"
 						label="Datum bis:" />
-					<b:commandButton
-						actionListener="#{productSearchBean.filterAuswertungen}"
-						value="Filtern" />
 				</b:panelGrid>
 				<b:buttonGroup id="buttonGroupAuswertung">
 					<b:commandButton styleClass="auswertenButton" id="auswertenButton"
@@ -177,6 +174,9 @@
 							</b:column>
 						</b:row>
 					</b:modal>
+					<b:commandButton
+						actionListener="#{productSearchBean.filterAuswertungen}"
+						value="Filtern" />
 				</b:buttonGroup>
 				<p:separator />
 				<br />

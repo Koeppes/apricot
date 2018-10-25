@@ -111,7 +111,7 @@ public class ProductSearchBean {
 	public List<String> getKategorienString() {
 		if (kategorienString == null) {
 			kategorienString = new ArrayList<>();
-			for (int i = 0; i < Kategorien.values().length; i++) {
+			for (int i = 1; i < Kategorien.values().length; i++) {
 				Kategorien k = Kategorien.values()[i];
 				kategorienString.add(k.getValue());
 			}
@@ -126,7 +126,7 @@ public class ProductSearchBean {
 	public List<String> getMaterialienString() {
 		if (materialienString == null) {
 			materialienString = new ArrayList<>();
-			for (int i = 0; i < Materialien.values().length; i++) {
+			for (int i = 1; i < Materialien.values().length; i++) {
 				Materialien k = Materialien.values()[i];
 				materialienString.add(k.getValue());
 			}
@@ -440,7 +440,9 @@ public class ProductSearchBean {
 
 	@PostConstruct
 	public void init() {
-		this.setLieferanten(getServiceLieferant().getLieferanten());
+		List<Lieferant> list =getServiceLieferant().getLieferanten();
+		list.remove(0);
+		this.setLieferanten(list);
 		this.setProdukte(getServiceProdukt().getProdukte());
 		this.setAuswertungen(serviceAuswertung.getAllAuswertungen());
 

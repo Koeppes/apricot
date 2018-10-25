@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.primefaces.component.barcode.Barcode;
 
 import de.apricotroom.bo.Edelsteine;
 import de.apricotroom.bo.Farben;
@@ -25,10 +26,12 @@ public class ProduktGenerator {
 	private JPAServiceProdukt serviceProdukt = new JPAServiceProdukt();
 	private JPAServiceLieferant serviceLieferant = new JPAServiceLieferant();
 	private Produkt previousProduct;
+	BarCodeGenerator barcodeGenerator = new BarCodeGenerator();
 
 	public static void main(String[] args) {
 		ProduktGenerator pg = new ProduktGenerator();
-		pg.readFile("/Users/jurgenhochkoppler/git/APRICOTroom/src/main/java/de/apricotroom/tools/masterlisteCopy.xls");
+		pg.readFile(
+				"/Users/jurgenhochkoppler/git/APRICOTroom/src/main/java/de/apricotroom/tools/# 2017-08-01 ARTIKELLISTE NEU.xls");
 		System.exit(0);
 	}
 
@@ -78,7 +81,7 @@ public class ProduktGenerator {
 							serial2 = "0" + serial2;
 						}
 						Materialien m = Materialien.ofIndex(serial2);
-						if(m != null) {
+						if (m != null) {
 							p.setMaterial(m.getValue());
 						}
 						serial12 = serial1 + serial2.substring(0, 2);
@@ -140,14 +143,16 @@ public class ProduktGenerator {
 							p.setEdelstein(Edelsteine.CHALCEDON.getValue());
 						}
 						String desc = cell.getStringCellValue();
-						if (desc == null || "".equals(desc) && previousProduct != null
-								&& previousProduct.getDescription() != null
-								&& !previousProduct.getDescription().isEmpty()
-								&& previousProduct.getSerialnumber().substring(0, 6).equals(serial12)) {
-							p.setDescription(previousProduct.getDescription());
-						} else {
-							p.setDescription(desc);
-						}
+						// if (desc == null || "".equals(desc) &&
+						// previousProduct != null
+						// && previousProduct.getDescription() != null
+						// && !previousProduct.getDescription().isEmpty()
+						// && previousProduct.getSerialnumber().substring(0,
+						// 6).equals(serial12)) {
+						// p.setDescription(previousProduct.getDescription());
+						// } else {
+						p.setDescription(desc);
+						// }
 					}
 					// price
 					if (j == 8) {
@@ -158,17 +163,34 @@ public class ProduktGenerator {
 						p.setLength(cell.getStringCellValue());
 					}
 					// lieferant
-					if (j == 10) {
+					if (j == 10 && cell.getCellType() == CellType.NUMERIC.getCode()) {
 						try {
-						int nr = (int) cell.getNumericCellValue();
-						Lieferant l = serviceLieferant.getLieferantByNr(nr);
-						p.setLieferant(l);
+							int nr = (int) cell.getNumericCellValue();
+							Lieferant l = serviceLieferant.getLieferantByNr(nr);
+							p.setLieferant(l);
 						} catch (IllegalStateException e) {
-							//do nothing
+							// do nothing
 						}
 					}
 				}
+				try {
+					if (p.getSerialnumber() != null && !p.getSerialnumber().isEmpty()) {
+
+						String barcodeImage = barcodeGenerator.generate(p.getSerialnumber());
+						if (barcodeImage != null) {
+							p.setBarcodeImage(barcodeImage);
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
 			}
+
+			if (p.getDescription() == null || p.getDescription().isEmpty()) {
+				System.out.println(i + ":" + p.getSerialnumber());
+			}
+
 		}
 		serviceProdukt.persistProdukte(produkte);
 
@@ -180,6 +202,7 @@ public class ProduktGenerator {
 		String serial1;
 		String serial2;
 		String serial12;
+		boolean ignore = false;
 		List<Produkt> produkte = new ArrayList<>();
 		Sheet sheetInventarRinge = workbook.getSheetAt(5);
 		for (int i = 1; i < sheetInventarRinge.getLastRowNum(); i++) {
@@ -192,123 +215,147 @@ public class ProduktGenerator {
 			p = new Produkt();
 			p.setGenerated(true);
 			p.setKategorie(Kategorien.RING.getValue());
-			produkte.add(p);
+			ignore = false;
 			for (int j = 0; j < row.getLastCellNum(); j++) {
 				Cell cell = row.getCell(j);
 				if (cell != null) {
-					// serialPart1
-					if (j == 2) {
-						int cell1Value = (int) cell.getNumericCellValue();
-						serial1 = "0" + cell1Value;
-						if(serial1.length() == 4){
-							Materialien m = Materialien.ofIndex(serial1.substring(2, 4));
-							if(m != null) {
-								p.setMaterial(m.getValue());
-							}
-	
-						}
+					if (j == 0) {
+						ignore = "x".equals(cell.getStringCellValue());
 					}
-					// serialPart2
-					if (j == 3) {
-						cell.setCellType(CellType.STRING);
-						serial2 = cell.getStringCellValue();
-						if (serial2.length() == 1) {
-							serial2 = "0" + serial2;
-						}
-						if (serial2.length() > 2) {
-							serial12 = serial1 + serial2.substring(0, 2);
-						} else {
-							serial12 = serial1 + serial2;
-						}
-						serial = serial1 + serial2;
-					}
-					// size
-					if (j == 4) {
-						Integer size = (int) cell.getNumericCellValue();
-						if (size != null) {
-							p.basicSetSize(size.intValue());
-						}
-						if (serial.contains("-g")) {
-							p.setFarbe(Farben.GOLD.getValue());
-						}
-						if (serial.contains("-s")) {
-							p.setFarbe(Farben.SILBER.getValue());
-						}
-						if (serial.contains("-r")) {
-							p.setFarbe(Farben.ROSE.getValue());
-						}
-						if (serial.contains("-RQ")) {
-							p.setGemstone(true);
-							p.setEdelstein(Edelsteine.ROSENQUARZ.getIndex());
-						}
-						if (serial.contains("-LB")) {
-							p.setGemstone(true);
-							p.setEdelstein(Edelsteine.LABRADORIT.getIndex());
-						}
-						if (serial.contains("-AC")) {
-							p.setGemstone(true);
-							p.setEdelstein(Edelsteine.AQUA_CHALCEDON.getIndex());
-						}
-						if (serial.contains("-PR")) {
-							p.setGemstone(true);
-							p.setEdelstein(Edelsteine.PREHNIT.getIndex());
-						}
-						if (serial.contains("-MG")) {
-							p.setGemstone(true);
-							p.setEdelstein(Edelsteine.MONDSTEIN_GRAU.getIndex());
-						}
-						if (serial.contains("-MW")) {
-							p.setGemstone(true);
-							p.setEdelstein(Edelsteine.MONDSTEIN_WEISS.getIndex());
-						}
-						if (serial.contains("-MS")) {
-							p.setGemstone(true);
-							p.setEdelstein(Edelsteine.MONDSTEIN_SCHWARZ.getIndex());
-						}
-						if (serial.endsWith("-C")) {
-							p.setGemstone(true);
-							p.setEdelstein(Edelsteine.CHALCEDON.getIndex());
-						}
-						if (p.isGemstone()) {
-							serial12 = serial12 + p.getEdelstein();
-						}
-					}
-					// description
-					if (j == 5) {
-						if (p.getSize() != 0) {
-							serial = serial + "-" + p.getSize();
-							p.setSerialnumber(serial);
-						} else {
-							p.setSerialnumber(serial);
-						}
-						String desc = cell.getStringCellValue();
-						if (desc == null || "".equals(desc) && previousProduct != null
-								&& previousProduct.getDescription() != null
-								&& !previousProduct.getDescription().isEmpty()) {
-							if (p.isGemstone() && previousProduct.isGemstone()) {
-								if (previousProduct.getSerialnumber().substring(0, 9).equals(serial12)) {
-									p.setDescription(previousProduct.getDescription());
+					if (!ignore) {
+						// serialPart1
+						if (j == 2) {
+							int cell1Value = (int) cell.getNumericCellValue();
+							serial1 = "0" + cell1Value;
+							if (serial1.length() == 4) {
+								Materialien m = Materialien.ofIndex(serial1.substring(2, 4));
+								if (m != null) {
+									p.setMaterial(m.getValue());
 								}
+
+							}
+						}
+						// serialPart2
+						if (j == 3) {
+							cell.setCellType(CellType.STRING);
+							serial2 = cell.getStringCellValue();
+							if (serial2.length() == 1) {
+								serial2 = "0" + serial2;
+							}
+							if (serial2.length() > 2) {
+								serial12 = serial1 + serial2.substring(0, 2);
 							} else {
-								if (previousProduct.getSerialnumber().substring(0, 6).equals(serial12)) {
-									p.setDescription(previousProduct.getDescription());
-								}
+								serial12 = serial1 + serial2;
 							}
-						} else {
-							p.setDescription(desc);
+							serial = serial1 + serial2;
 						}
-						if(desc == null || desc.isEmpty()) {
-							System.out.println(p.getSerialnumber());
+						// size
+						if (j == 4 && cell.getCellType() == CellType.NUMERIC.getCode()) {
+							Integer size = (int) cell.getNumericCellValue();
+							if (size != null) {
+								p.basicSetSize(size.intValue());
+							}
+							if (serial.contains("-g")) {
+								p.setFarbe(Farben.GOLD.getValue());
+							}
+							if (serial.contains("-s")) {
+								p.setFarbe(Farben.SILBER.getValue());
+							}
+							if (serial.contains("-r")) {
+								p.setFarbe(Farben.ROSE.getValue());
+							}
+							if (serial.contains("-RQ")) {
+								p.setGemstone(true);
+								p.setEdelstein(Edelsteine.ROSENQUARZ.getIndex());
+							}
+							if (serial.contains("-LB")) {
+								p.setGemstone(true);
+								p.setEdelstein(Edelsteine.LABRADORIT.getIndex());
+							}
+							if (serial.contains("-AC")) {
+								p.setGemstone(true);
+								p.setEdelstein(Edelsteine.AQUA_CHALCEDON.getIndex());
+							}
+							if (serial.contains("-PR")) {
+								p.setGemstone(true);
+								p.setEdelstein(Edelsteine.PREHNIT.getIndex());
+							}
+							if (serial.contains("-MG")) {
+								p.setGemstone(true);
+								p.setEdelstein(Edelsteine.MONDSTEIN_GRAU.getIndex());
+							}
+							if (serial.contains("-MW")) {
+								p.setGemstone(true);
+								p.setEdelstein(Edelsteine.MONDSTEIN_WEISS.getIndex());
+							}
+							if (serial.contains("-MS")) {
+								p.setGemstone(true);
+								p.setEdelstein(Edelsteine.MONDSTEIN_SCHWARZ.getIndex());
+							}
+							if (serial.endsWith("-C")) {
+								p.setGemstone(true);
+								p.setEdelstein(Edelsteine.CHALCEDON.getIndex());
+							}
+							if (p.isGemstone()) {
+								serial12 = serial12 + p.getEdelstein();
+							}
 						}
-					}
-					// price
-					if (j == 12) {
-						p.setSellingPrice(cell.getNumericCellValue());
+						// description
+						if (j == 5) {
+							if (p.getSize() != 0) {
+								serial = serial + "-" + p.getSize();
+								p.setSerialnumber(serial);
+							} else {
+								p.setSerialnumber(serial);
+							}
+							String desc = cell.getStringCellValue();
+							if (desc == null || "".equals(desc)
+									|| "\"".equals(desc.trim()) && previousProduct != null
+											&& previousProduct.getDescription() != null
+											&& !previousProduct.getDescription().isEmpty()) {
+								if (p.isGemstone() && previousProduct.isGemstone()) {
+									if (previousProduct.getSerialnumber()
+											.substring(0, previousProduct.getSerialnumber().lastIndexOf("-"))
+											.equals(serial12)) {
+										p.setDescription(previousProduct.getDescription());
+									}
+								} else {
+									if (previousProduct.getSerialnumber().substring(0, 6).equals(serial12)) {
+										p.setDescription(previousProduct.getDescription());
+									}
+								}
+								if (p.getDescription() == null) {
+									System.out.println(p.getSerialnumber());
+								}
+
+							} else {
+								p.setDescription(desc);
+							}
+						}
+						// price
+						if (j == 12) {
+							p.setSellingPrice(cell.getNumericCellValue());
+						}
 					}
 				}
 			}
+			if (!ignore) {
+				try {
+					if (p.getSerialnumber() != null && !p.getSerialnumber().isEmpty()) {
+						String barcodeImage = barcodeGenerator.generate(p.getSerialnumber());
+						if (barcodeImage != null) {
+							p.setBarcodeImage(barcodeImage);
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+
+				}
+				produkte.add(p);
+			}
 		}
 		serviceProdukt.persistProdukte(produkte);
+		System.out.println(produkte.size() + " Ringe gespeichert!");
 	}
 
 }

@@ -80,7 +80,7 @@ public class ProductEditorBean {
 	}
 
 	public boolean isSizeVisible() {
-		return Kategorien.RING.getValue().equals(this.getSelectedProdukt().getKategorie());
+		return this.getSelectedProdukt() != null && Kategorien.RING.getValue().equals(this.getSelectedProdukt().getKategorie());
 	}
 
 	public void setFarben(List<Farben> farben) {
@@ -164,22 +164,22 @@ public class ProductEditorBean {
 	public void init() {
 		Produkt p = (Produkt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
 				.get("selectedProdukt");
-		Lieferant lieferant = p.getLieferant();
-		this.setSelectedProdukt(p);
-		Produkt copy = (Produkt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
-				.get("selectedProduktCopy");
-		this.setSelectedProduktCopy(copy);
-		JPAServiceProdukt s = (JPAServiceProdukt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
-				.get("serviceProdukt");
-		this.setServiceProdukt(s);
-		JPAServiceLieferant l = (JPAServiceLieferant) FacesContext.getCurrentInstance().getExternalContext()
-				.getRequestMap().get("serviceLieferant");
-		this.setServiceLieferant(l);
-		this.setSuppliers(l.getLieferanten());
-		ProductSearchBean bean = (ProductSearchBean) FacesContext.getCurrentInstance().getExternalContext()
-				.getRequestMap().get("productSearchBean");
-		this.setSearchBean(bean);
-
+		if (p != null) {
+			this.setSelectedProdukt(p);
+			Produkt copy = (Produkt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
+					.get("selectedProduktCopy");
+			this.setSelectedProduktCopy(copy);
+			JPAServiceProdukt s = (JPAServiceProdukt) FacesContext.getCurrentInstance().getExternalContext()
+					.getRequestMap().get("serviceProdukt");
+			this.setServiceProdukt(s);
+			JPAServiceLieferant l = (JPAServiceLieferant) FacesContext.getCurrentInstance().getExternalContext()
+					.getRequestMap().get("serviceLieferant");
+			this.setServiceLieferant(l);
+			this.setSuppliers(l.getLieferanten());
+			ProductSearchBean bean = (ProductSearchBean) FacesContext.getCurrentInstance().getExternalContext()
+					.getRequestMap().get("productSearchBean");
+			this.setSearchBean(bean);
+		}
 	}
 
 	public ProductSearchBean getSearchBean() {
