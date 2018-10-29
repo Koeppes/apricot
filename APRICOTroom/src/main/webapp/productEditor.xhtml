@@ -3,10 +3,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:b="http://bootsfaces.net/ui"
+	xmlns:b="http://bootsfaces.net/ui" xmlns:p="http://primefaces.org/ui"
 	xmlns:f="http://java.sun.com/jsf/core">
 
 <h:head>
+	<b:image style="width:150px"
+		value="resources/icons/logoTransparent.png" />
 	<h:outputStylesheet library="themes"
 		name="#{themeSelectorBean.theme}.min.css"
 		rendered="#{themeSelectorBean.bootswatchTheme}"></h:outputStylesheet>
@@ -109,7 +111,12 @@
 					</b:buttonGroup>
 				</b:panelGrid>
 				<b:panel title="Barcode">
-					<b:image value="#{productEditorBean.selectedProdukt.barcodeImage}" />
+					<b:image id="barcode"
+						value="#{productEditorBean.selectedProdukt.barcodeImage}" />
+					<p:commandButton value="Print" type="button" icon="ui-icon-print"
+						style="display:block;margin-bottom: 20px">
+						<p:printer target="barcode" />
+					</p:commandButton>
 				</b:panel>
 			</b:panelGrid>
 		</h:form>

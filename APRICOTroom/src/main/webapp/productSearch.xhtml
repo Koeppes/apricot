@@ -7,16 +7,15 @@
 	xmlns:f="http://java.sun.com/jsf/core">
 
 <h:head>
-	<h:outputStylesheet library="themes"
-		name="#{themeSelectorBean.theme}.min.css"
-		rendered="#{themeSelectorBean.bootswatchTheme}"></h:outputStylesheet>
+	<b:image style="width:150px"
+		value="resources/icons/logoTransparent.png" />
 </h:head>
 <h:body>
 	<b:container>
 		<h:form id="productSearch">
 			<b:panelGrid columns="1">
-				<b:dataTable id="dataTableProdukte" value="#{productSearchBean.produkte}"
-					var="produkt"
+				<b:dataTable id="dataTableProdukte"
+					value="#{productSearchBean.produkte}" var="produkt"
 					onselect="ajax:productSearchBean.onSelect(produkt, typeOfSelection, indexes);"
 					ondeselect="ajax:productSearchBean.onDeselect(produkt, typeOfSelection, indexes);"
 					selected-row="#{productSearchBean.selectedRows}" select="true"

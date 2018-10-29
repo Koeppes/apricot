@@ -9,6 +9,7 @@
 		<mapping-file>META-INF/orm-Benutzer.xml</mapping-file>
 		<mapping-file>META-INF/orm-Produkt.xml</mapping-file>
 		<mapping-file>META-INF/orm-Auswertung.xml</mapping-file>
+		<mapping-file>META-INF/orm-Verkauf.xml</mapping-file>
 				<properties>
 			<property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/Apricot" />
 			<property name="javax.persistence.jdbc.user" value="postgres" />

@@ -34,6 +34,7 @@ public class JPAServiceProdukt extends JPAService {
 		}
 	}
 
+	
 	public static void main(String[] args) {
 
 		List<Lieferant> suppliers = new JPAServiceLieferant().getLieferanten();

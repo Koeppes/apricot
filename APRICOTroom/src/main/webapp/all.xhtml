@@ -7,6 +7,8 @@
 	xmlns:f="http://java.sun.com/jsf/core">
 
 <h:head>
+	<b:image style="width:150px"
+		value="resources/icons/logoTransparent.png" />
 </h:head>
 
 <h:body>
@@ -257,6 +259,50 @@
 						value="Abmelden" update="@form" />
 				</b:buttonGroup>
 			</h:form>
+		</b:tab>
+		<b:tab title="Scanner">
+			<b:container>
+				<h:form id="sale">
+					<b:defaultCommand target="addSaleButton" />
+					<b:focus target="saleSerial" />
+					<b:row>
+						<b:inputText id="saleSerial"
+							value="#{productSearchBean.saleSerial}" label="Seriennumer" />
+						<b:touchSpin id="spin1" col-md="3"
+							value="#{productSearchBean.saleCount}" min="1" max="100" step="1"
+							prefix="Anzahl" />
+						<b:dateTimePicker mode="toggle-icon" showWeek="true"
+							format="DD.MM.YYYY" value="#{productSearchBean.saleDate}"
+							label="Datum" label-col-sm="3" col-sm="6" />
+						<b:commandButton id="addSaleButton" actionListener="#{productSearchBean.addSale}"
+							value="Hinzufügen" update="@form" />
+					</b:row>
+					<b:row>
+						<b:panelGrid columns="1">
+							<b:dataTable id="dataTableSales" excel="true" pdf="true"
+								print="true" value="#{productSearchBean.sales}" var="sale"
+								onselect="ajax:productSearchBean.onSelectSale(sale, typeOfSelection, indexes);"
+								ondeselect="ajax:productSearchBean.onDeselectSale(sale, typeOfSelection, indexes);"
+								select="true" selectionMode="single">
+								<b:dataTableColumn label="Datum" styleClass="width:100px;"
+									value="#{sale.formattedDate}" />
+								<b:dataTableColumn label="Anzahl" styleClass="width:100px;"
+									value="#{sale.count}" />
+								<b:dataTableColumn label="Seriennummer"
+									value="#{sale.produkt.serialnumber}" />
+								<b:dataTableColumn label="Name"
+									value="#{sale.produkt.description}" />
+							</b:dataTable>
+						</b:panelGrid>
+						<b:commandButton actionListener="#{productSearchBean.deleteSale}"
+							value="Löschen" update="@form" />
+						<b:commandButton actionListener="#{productSearchBean.copySale}"
+							value="Kopieren" update="@form" />
+						<b:commandButton actionListener="#{productSearchBean.saveSale}"
+							value="Speichern" update="@form" />
+					</b:row>
+				</h:form>
+			</b:container>
 		</b:tab>
 	</b:tabView>
 </h:body>

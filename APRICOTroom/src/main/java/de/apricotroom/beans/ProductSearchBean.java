@@ -31,9 +31,11 @@ import de.apricotroom.bo.Lieferant;
 import de.apricotroom.bo.Materialien;
 import de.apricotroom.bo.Produkt;
 import de.apricotroom.bo.Ringgroessen;
+import de.apricotroom.bo.Verkauf;
 import de.apricotroom.pers.JPAServiceAuswertung;
 import de.apricotroom.pers.JPAServiceLieferant;
 import de.apricotroom.pers.JPAServiceProdukt;
+import de.apricotroom.pers.JPAServiceVerkauf;
 import de.apricotroom.tools.ProduktImporter;
 import de.apricotroom.tools.ProduktLister;
 
@@ -52,6 +54,7 @@ public class ProductSearchBean {
 	private Lieferant selectedLieferant;
 	private JPAServiceProdukt serviceProdukt = new JPAServiceProdukt();
 	private JPAServiceLieferant serviceLieferant = new JPAServiceLieferant();
+	private JPAServiceVerkauf serviceVerkauf = new JPAServiceVerkauf();
 
 	private boolean buttonsDisabled;
 	private List<Kategorien> kategorien;
@@ -73,6 +76,73 @@ public class ProductSearchBean {
 	private Date date;
 	private Date filterDateAuswertungVon;
 	private Date filterDateAuswertungBis;
+
+	private Integer saleCount = 1;
+	private String saleSerial;
+	private Date saleDate = new Date(System.currentTimeMillis());
+	private List<Verkauf> sales = new ArrayList<>();
+	private Verkauf selectedSale;
+
+	public Verkauf getSelectedSale() {
+		return selectedSale;
+	}
+
+	public void setSelectedSale(Verkauf selectedSale) {
+		this.selectedSale = selectedSale;
+	}
+
+	public List<Verkauf> getSales() {
+		return sales;
+	}
+
+	public void setSales(List<Verkauf> sales) {
+		this.sales = sales;
+	}
+
+	public Date getSaleDate() {
+		return saleDate;
+	}
+
+	public void setSaleDate(Date saleDate) {
+		this.saleDate = saleDate;
+	}
+	public void saveSale() {
+		serviceVerkauf.persistVerkaeufe(this.getSales());
+		this.setSales(new ArrayList<>());
+		this.info("Verkäufe erfolgreich gespeichert");
+	}
+	public void addSale() {
+		if (this.getSaleSerial() != null && !this.getSaleSerial().isEmpty()) {
+			Produkt p = serviceProdukt.getProduktBySerial(this.getSaleSerial());
+			if(p != null) {
+				Verkauf v = new Verkauf();
+				v.setCount(this.getSaleCount());
+				v.setProdukt(p);
+				v.setDate(this.getSaleDate());
+				sales.add(v);
+			}
+			saleCount = 1;
+			saleSerial = "";
+			saleDate = new Date(System.currentTimeMillis());
+			this.setSaleSerial("");
+		}
+	}
+
+	public Integer getSaleCount() {
+		return saleCount;
+	}
+
+	public void setSaleCount(Integer saleCount) {
+		this.saleCount = saleCount;
+	}
+
+	public String getSaleSerial() {
+		return saleSerial;
+	}
+
+	public void setSaleSerial(String saleSerial) {
+		this.saleSerial = saleSerial;
+	}
 
 	public Date getFilterDateAuswertungVon() {
 		return filterDateAuswertungVon;
@@ -440,11 +510,12 @@ public class ProductSearchBean {
 
 	@PostConstruct
 	public void init() {
-		List<Lieferant> list =getServiceLieferant().getLieferanten();
+		List<Lieferant> list = getServiceLieferant().getLieferanten();
 		list.remove(0);
 		this.setLieferanten(list);
 		this.setProdukte(getServiceProdukt().getProdukte());
 		this.setAuswertungen(serviceAuswertung.getAllAuswertungen());
+//		this.setSales(serviceVerkauf.getVerkaeufe());
 
 	}
 
@@ -533,11 +604,15 @@ public class ProductSearchBean {
 	public void onSelectLieferant(Lieferant l, String typeOfSelection, String indexes) {
 		setSelectedLieferant(l);
 	}
-
+	public void onSelectSale(Verkauf v, String typeOfSelection, String indexes) {
+		setSelectedSale(v);
+	}
 	public void onDeselectLieferant(Lieferant l, String typeOfSelection, String indexes) {
 		setSelectedLieferant(null);
 	}
-
+	public void onDeselectSale(Verkauf v, String typeOfSelection, String indexes) {
+		setSelectedSale(null);
+	}
 	public void editProdukt() {
 		this.setTabIndex(0);
 		if (this.getSelectedProdukt() != null) {
@@ -643,6 +718,17 @@ public class ProductSearchBean {
 			setSelectedLieferant(null);
 		} else {
 			info("Bitte einen Lieferanten auswählen!");
+		}
+		return true;
+	}
+	public boolean deleteSale() {
+		this.setTabIndex(3);
+		Verkauf v = getSelectedSale();
+		if (v != null) {
+			sales.remove(v);
+			setSelectedSale(null);
+		} else {
+			info("Bitte einen Verkauf auswählen!");
 		}
 		return true;
 	}
