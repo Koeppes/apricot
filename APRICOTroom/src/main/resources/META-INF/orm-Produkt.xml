@@ -26,6 +26,7 @@
 				target-entity="de.apricotroom.bo.Lieferant" />
 			<transient name="counter" />
 			<transient name="imported" />
+			<transient name="imageBarcode" />
 		</attributes>
 	</entity>
 </entity-mappings>

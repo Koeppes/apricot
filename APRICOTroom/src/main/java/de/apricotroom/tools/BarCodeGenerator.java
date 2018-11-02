@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+import javax.faces.context.FacesContext;
+
 import org.apache.commons.io.FileUtils;
 
 import net.sourceforge.barbecue.Barcode;
@@ -27,10 +29,12 @@ public class BarCodeGenerator {
 		BarcodeImageHandler.savePNG(barcode, imgFile);
 	}
 
-	public static String generate(String serial, boolean createFile) throws Exception {
+	public static String generate(String serial, boolean web) throws Exception {
 		String imageNamePathDB = null;
 		String imagePathPrefix = "src/main/webapp/";
 		String parentPath = null;
+		String webPath = FacesContext.getCurrentInstance().getExternalContext().getRealPath("");
+		String fullWebPath = webPath + "resources/images";
 		File parent = null;
 		File f = null;
 		File imgFile = null;
@@ -38,22 +42,25 @@ public class BarCodeGenerator {
 		Barcode barcode1 = BarcodeFactory.createCode128B(serial);
 		barcode1.setBarHeight(60);
 		barcode1.setBarWidth(2);
-		if (createFile) {
-			f = new File(serial + ".png");
-			BarcodeImageHandler.savePNG(barcode1, f);
-			parent = f.getAbsoluteFile();
-			parentPath = parent.getAbsolutePath().substring(0,
-					parent.getAbsolutePath().length() - parent.getName().length());
-			imageNamePathDB = "resources/images/" + serial + ".png";
+		f = new File(serial + ".png");
+		BarcodeImageHandler.savePNG(barcode1, f);
+		parent = f.getAbsoluteFile();
+		parentPath = parent.getAbsolutePath().substring(0,
+				parent.getAbsolutePath().length() - parent.getName().length());
+		imageNamePathDB = "resources/images/" + serial + ".png";
+		if (web) {
+			String imagePath = fullWebPath;
+			imgFile = new File(imagePath + "/" + f.getName());
+		} else {
 			String imagePath = imagePathPrefix + imageNamePathDB;
 			imgFile = new File(parentPath + imagePath);
-			// Files.copy(f.toPath(), imgFile.toPath(),
-			// StandardCopyOption.REPLACE_EXISTING);
-			copyByStream(f, imgFile);
-
-			// Write the bar code to PNG file
-			f.delete();
 		}
+		// Files.copy(f.toPath(), imgFile.toPath(),
+		// StandardCopyOption.REPLACE_EXISTING);
+		copyByStream(f, imgFile);
+
+		// Write the bar code to PNG file
+		f.delete();
 		return imageNamePathDB;
 
 	}

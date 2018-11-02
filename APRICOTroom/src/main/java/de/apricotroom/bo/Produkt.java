@@ -1,7 +1,5 @@
 package de.apricotroom.bo;
 
-import de.apricotroom.tools.BarCodeGenerator;
-
 public class Produkt {
 	private Long id;
 	private String name;
@@ -18,6 +16,15 @@ public class Produkt {
 	private String material;
 	private boolean generated;
 	private String barcodeImage;
+	private boolean imageBarcode;
+	public boolean isImageBarcode() {
+		 return this.getBarcodeImage() != null;
+	}
+
+	public void setImageBarcode(boolean imageBarcode) {
+		this.imageBarcode = imageBarcode;
+	}
+
 	public String getBarcodeImage() {
 		return barcodeImage;
 	}

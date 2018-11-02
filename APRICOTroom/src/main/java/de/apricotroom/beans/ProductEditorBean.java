@@ -195,10 +195,6 @@ public class ProductEditorBean {
 
 	}
 
-	public boolean getSelectedProduktHasBarcode() {
-		return this.getSelectedProdukt() != null && this.getSelectedProdukt().getBarcode() != null;
-	}
-
 	public ProductSearchBean getSearchBean() {
 		return searchBean;
 	}
@@ -266,6 +262,7 @@ public class ProductEditorBean {
 											if (this.getSelectedProdukt().getSerialnumber() != null
 													&& !this.getSelectedProdukt().getSerialnumber().isEmpty()) {
 												String barcodeImage = BarCodeGenerator
+														
 														.generate(this.getSelectedProdukt().getSerialnumber(), true);
 												if (barcodeImage != null) {
 													this.getSelectedProdukt().setBarcodeImage(barcodeImage);

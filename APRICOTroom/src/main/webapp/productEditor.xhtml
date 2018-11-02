@@ -110,7 +110,7 @@
 							value="Abbrechen" update="@form" />
 					</b:buttonGroup>
 				</b:panelGrid>
-				<b:panel title="Barcode" rendered="#{productEditorBean.selectedProduktHasBarcode}">
+				<b:panel title="Barcode" rendered="#{productEditorBean.selectedProdukt.imageBarcode}">
 					<b:image id="barcode"
 						value="#{productEditorBean.selectedProdukt.barcodeImage}" />
 					<p:commandButton value="Print" type="button" icon="ui-icon-print"
