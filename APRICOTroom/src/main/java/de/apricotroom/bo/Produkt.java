@@ -1,5 +1,7 @@
 package de.apricotroom.bo;
 
+import de.apricotroom.tools.BarCodeGenerator;
+
 public class Produkt {
 	private Long id;
 	private String name;
@@ -98,8 +100,8 @@ public class Produkt {
 	public void setFarbe(String farbe) {
 		if (!"Keine Auswahl".equals(farbe)) {
 			this.farbe = farbe;
-			this.buildSerialnumber();
 		}
+		this.buildSerialnumber();
 	}
 
 	public String getKategorie() {
@@ -235,7 +237,6 @@ public class Produkt {
 		if (!this.isImported() || this.getId() == null) {
 			this.buildSerialnumber(counter);
 		}
-
 	}
 
 	public void buildSerialnumber(int newCounter) {

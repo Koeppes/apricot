@@ -26,6 +26,9 @@ public enum Edelsteine {
 				result = f;
 			}
 		}
+		if(result == null) {
+			result = Edelsteine.KEINE_AUSWAHL;
+		}
 		return result;
 	}
 	public static Edelsteine ofIndex(String v) {
@@ -35,6 +38,9 @@ public enum Edelsteine {
 			if(f.getIndex().equals(v)) {
 				result = f;
 			}
+		}
+		if(result == null) {
+			result = Edelsteine.KEINE_AUSWAHL;
 		}
 		return result;
 	}

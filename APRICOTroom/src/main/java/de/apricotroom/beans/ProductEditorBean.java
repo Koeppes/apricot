@@ -20,6 +20,7 @@ import de.apricotroom.bo.Produkt;
 import de.apricotroom.bo.Ringgroessen;
 import de.apricotroom.pers.JPAServiceLieferant;
 import de.apricotroom.pers.JPAServiceProdukt;
+import de.apricotroom.tools.BarCodeGenerator;
 
 @ViewScoped
 @ManagedBean
@@ -35,6 +36,7 @@ public class ProductEditorBean {
 	private List<Ringgroessen> ringgroessen;
 	private List<Edelsteine> edelsteine;
 	private ProductSearchBean searchBean;
+	private boolean selectedProduktHasBarcode;
 
 	public boolean isEdelsteinDisabled() {
 		return getSelectedProdukt().isGenerated() || !getSelectedProdukt().isGemstone();
@@ -80,7 +82,8 @@ public class ProductEditorBean {
 	}
 
 	public boolean isSizeVisible() {
-		return this.getSelectedProdukt() != null && Kategorien.RING.getValue().equals(this.getSelectedProdukt().getKategorie());
+		return this.getSelectedProdukt() != null
+				&& Kategorien.RING.getValue().equals(this.getSelectedProdukt().getKategorie());
 	}
 
 	public void setFarben(List<Farben> farben) {
@@ -162,24 +165,38 @@ public class ProductEditorBean {
 
 	@PostConstruct
 	public void init() {
+		JPAServiceLieferant l = null;
+		JPAServiceProdukt s = null;
+		Produkt copy = null;
+
 		Produkt p = (Produkt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
 				.get("selectedProdukt");
-		if (p != null) {
-			this.setSelectedProdukt(p);
-			Produkt copy = (Produkt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
+		if (p == null) {
+			p = new Produkt();
+			l = new JPAServiceLieferant();
+			s = new JPAServiceProdukt();
+			copy = p.copy();
+		} else {
+			copy = (Produkt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
 					.get("selectedProduktCopy");
-			this.setSelectedProduktCopy(copy);
-			JPAServiceProdukt s = (JPAServiceProdukt) FacesContext.getCurrentInstance().getExternalContext()
-					.getRequestMap().get("serviceProdukt");
-			this.setServiceProdukt(s);
-			JPAServiceLieferant l = (JPAServiceLieferant) FacesContext.getCurrentInstance().getExternalContext()
-					.getRequestMap().get("serviceLieferant");
-			this.setServiceLieferant(l);
-			this.setSuppliers(l.getLieferanten());
+			s = (JPAServiceProdukt) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
+					.get("serviceProdukt");
+			l = (JPAServiceLieferant) FacesContext.getCurrentInstance().getExternalContext().getRequestMap()
+					.get("serviceLieferant");
 			ProductSearchBean bean = (ProductSearchBean) FacesContext.getCurrentInstance().getExternalContext()
 					.getRequestMap().get("productSearchBean");
 			this.setSearchBean(bean);
 		}
+		this.setSelectedProdukt(p);
+		this.setServiceProdukt(s);
+		this.setSelectedProduktCopy(copy);
+		this.setServiceLieferant(l);
+		this.setSuppliers(l.getLieferanten());
+
+	}
+
+	public boolean getSelectedProduktHasBarcode() {
+		return this.getSelectedProdukt() != null && this.getSelectedProdukt().getBarcode() != null;
 	}
 
 	public ProductSearchBean getSearchBean() {
@@ -245,8 +262,21 @@ public class ProductEditorBean {
 										info("Bitte einen Edelstein auswählen!");
 
 									} else {
-										getServiceProdukt().persist(this.getSelectedProdukt());
-										navigateBack("save");
+										try {
+											if (this.getSelectedProdukt().getSerialnumber() != null
+													&& !this.getSelectedProdukt().getSerialnumber().isEmpty()) {
+												String barcodeImage = BarCodeGenerator
+														.generate(this.getSelectedProdukt().getSerialnumber(), true);
+												if (barcodeImage != null) {
+													this.getSelectedProdukt().setBarcodeImage(barcodeImage);
+												}
+											}
+											getServiceProdukt().persist(this.getSelectedProdukt());
+											navigateBack("save");
+										} catch (Exception e) {
+											// TODO Auto-generated catch block
+											e.printStackTrace();
+										}
 									}
 								}
 							}

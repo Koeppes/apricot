@@ -27,37 +27,45 @@ public class BarCodeGenerator {
 		BarcodeImageHandler.savePNG(barcode, imgFile);
 	}
 
-	public String generate(String serial) throws Exception {
+	public static String generate(String serial, boolean createFile) throws Exception {
+		String imageNamePathDB = null;
+		String imagePathPrefix = "src/main/webapp/";
+		String parentPath = null;
+		File parent = null;
+		File f = null;
+		File imgFile = null;
 		// Get 128B Barcode instance from the Factory
 		Barcode barcode1 = BarcodeFactory.createCode128B(serial);
 		barcode1.setBarHeight(60);
 		barcode1.setBarWidth(2);
-		File f = new File(serial + ".png");
-		BarcodeImageHandler.savePNG(barcode1, f);
-		File parent = f.getAbsoluteFile();
-		String parentPath = parent.getAbsolutePath().substring(0,
-				parent.getAbsolutePath().length() - parent.getName().length());
-		String imagePathPrefix = "src/main/webapp/";
-		String imageNamePathDB =  "resources/images/" + serial + ".png";
-		String imagePath = imagePathPrefix + imageNamePathDB;
-		File imgFile = new File(parentPath + imagePath);
-		//Files.copy(f.toPath(), imgFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-		copyByStream(f, imgFile);
+		if (createFile) {
+			f = new File(serial + ".png");
+			BarcodeImageHandler.savePNG(barcode1, f);
+			parent = f.getAbsoluteFile();
+			parentPath = parent.getAbsolutePath().substring(0,
+					parent.getAbsolutePath().length() - parent.getName().length());
+			imageNamePathDB = "resources/images/" + serial + ".png";
+			String imagePath = imagePathPrefix + imageNamePathDB;
+			imgFile = new File(parentPath + imagePath);
+			// Files.copy(f.toPath(), imgFile.toPath(),
+			// StandardCopyOption.REPLACE_EXISTING);
+			copyByStream(f, imgFile);
 
-		// Write the bar code to PNG file
-		f.delete();
+			// Write the bar code to PNG file
+			f.delete();
+		}
 		return imageNamePathDB;
 
 	}
-	private void copyByStream(File from, File to) throws Exception{
+
+	public static void copyByStream(File from, File to) throws Exception {
 		FileInputStream infile = new FileInputStream(from);
 		FileOutputStream outfile = new FileOutputStream(to);
 
 		byte[] b = new byte[1024];
-		while(infile.read(b, 0, 1024) > 0){
-		    outfile.write(b);
+		while (infile.read(b, 0, 1024) > 0) {
+			outfile.write(b);
 		}
-
 		infile.close();
 		outfile.close();
 	}

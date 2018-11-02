@@ -33,6 +33,9 @@ public enum Materialien {
 				result = m;
 			}
 		}
+		if(result == null) {
+			result = Materialien.KEINE_AUSWAHL;
+		}
 		return result;
 	}
 
@@ -45,6 +48,9 @@ public enum Materialien {
 			if (m.toString().equalsIgnoreCase(v)) {
 				result = m;
 			}
+		}
+		if(result == null) {
+			result = Materialien.KEINE_AUSWAHL;
 		}
 		return result;
 	}

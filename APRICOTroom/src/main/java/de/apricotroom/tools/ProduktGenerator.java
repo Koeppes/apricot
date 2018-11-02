@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.primefaces.application.resource.barcode.BarcodeGenerator;
 import org.primefaces.component.barcode.Barcode;
 
 import de.apricotroom.bo.Edelsteine;
@@ -26,7 +27,6 @@ public class ProduktGenerator {
 	private JPAServiceProdukt serviceProdukt = new JPAServiceProdukt();
 	private JPAServiceLieferant serviceLieferant = new JPAServiceLieferant();
 	private Produkt previousProduct;
-	BarCodeGenerator barcodeGenerator = new BarCodeGenerator();
 
 	public static void main(String[] args) {
 		ProduktGenerator pg = new ProduktGenerator();
@@ -176,7 +176,7 @@ public class ProduktGenerator {
 				try {
 					if (p.getSerialnumber() != null && !p.getSerialnumber().isEmpty()) {
 
-						String barcodeImage = barcodeGenerator.generate(p.getSerialnumber());
+						String barcodeImage = BarCodeGenerator.generate(p.getSerialnumber(), true);
 						if (barcodeImage != null) {
 							p.setBarcodeImage(barcodeImage);
 						}
@@ -342,7 +342,7 @@ public class ProduktGenerator {
 			if (!ignore) {
 				try {
 					if (p.getSerialnumber() != null && !p.getSerialnumber().isEmpty()) {
-						String barcodeImage = barcodeGenerator.generate(p.getSerialnumber());
+						String barcodeImage = BarCodeGenerator.generate(p.getSerialnumber(), true);
 						if (barcodeImage != null) {
 							p.setBarcodeImage(barcodeImage);
 						}

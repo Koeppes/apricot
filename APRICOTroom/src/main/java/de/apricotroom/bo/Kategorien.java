@@ -30,7 +30,10 @@ public enum Kategorien {
 				result = k;
 			}
 		}
-		return result;
+		if(result == null) {
+			result = Kategorien.KEINE_AUSWAHL;
+		}
+ 		return result;
 	}
 	public static Kategorien ofToString(String v) {
 		Kategorien result = null;
@@ -41,6 +44,9 @@ public enum Kategorien {
 			if (k.toString().equals(v)) {
 				result = k;
 			}
+		}
+		if(result == null) {
+			result = Kategorien.KEINE_AUSWAHL;
 		}
 		return result;
 	}

@@ -13,6 +13,7 @@
 			<many-to-one name="produkt" fetch="LAZY"
 				target-entity="de.apricotroom.bo.Produkt" />
 			<transient name="formattedDate" />
+			<transient name="serial" />
 
 		</attributes>
 	</entity>

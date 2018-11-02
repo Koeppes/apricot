@@ -27,6 +27,9 @@ public enum Ringgroessen {
 				result = m;
 			}
 		}
+		if(result == null) {
+			result = Ringgroessen.KEINE_AUSWAHL;
+		}
 		return result;
 	}
 

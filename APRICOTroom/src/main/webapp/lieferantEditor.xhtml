@@ -17,6 +17,8 @@
 	<b:panel collapsible="false"
 		style="background-color:#F3D5B7;border-color:#F3D5B7"
 		title="Lieferant bearbeiten" />
+	<b:growl id="growl" globalOnly="true" showDetail="true"
+		severity="info,warn" />
 	<b:container>
 		<h:form id="lieferantEditor">
 			<b:panelGrid columns="1">
@@ -32,7 +34,7 @@
 			<b:panelGrid columns="2">
 				<b:buttonGroup>
 					<b:commandButton actionListener="#{lieferantEditorBean.save}"
-						value="Speichern" update="@form" />
+						value="Speichern" update="@form, growl" />
 					<b:commandButton actionListener="#{lieferantEditorBean.cancel}"
 						value="Abbrechen" update="@form" />
 				</b:buttonGroup>

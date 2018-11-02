@@ -21,8 +21,6 @@ import javax.faces.context.FacesContext;
 import org.apache.poi.util.IOUtils;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
-import org.primefaces.util.DateUtils;
-
 import de.apricotroom.bo.Auswertung;
 import de.apricotroom.bo.Ergebnis;
 import de.apricotroom.bo.Farben;
@@ -43,6 +41,10 @@ import de.apricotroom.tools.ProduktLister;
 @ManagedBean
 
 public class ProductSearchBean {
+	private static int TAB_INDEX_PRODUCTS = 0;
+	private static int TAB_INDEX_SUPPLIERS = 1;
+	private static int TAB_INDEX_SALES = 2;
+	private static int TAB_INDEX_EVALUATION = 3;
 	private static final long serialVersionUID = 1L;
 	private List<Produkt> produkte = new ArrayList<>();
 	private List<Lieferant> lieferanten = new ArrayList<>();
@@ -70,12 +72,40 @@ public class ProductSearchBean {
 	private List<Auswertung> auswertungen = new ArrayList<>();
 	private List<Auswertung> selectedAuswertungen = new ArrayList<>();
 	private List<Ergebnis> ergebnisse = new ArrayList<>();
+	private List<Ergebnis> ergebnisseDB = new ArrayList<>();
+
+	public List<Ergebnis> getErgebnisseDB() {
+		return ergebnisseDB;
+	}
+
+	public void setErgebnisseDB(List<Ergebnis> ergebnisseDB) {
+		this.ergebnisseDB = ergebnisseDB;
+	}
+
 	private Auswertung selectedAuswertung;
 	private String selectedRowsAuswertung;
 	private UploadedFile fileAuswertung;
 	private Date date;
 	private Date filterDateAuswertungVon;
 	private Date filterDateAuswertungBis;
+	private Date filterDateAuswertungDBVon;
+	private Date filterDateAuswertungDBBis;
+
+	public Date getFilterDateAuswertungDBVon() {
+		return filterDateAuswertungDBVon;
+	}
+
+	public void setFilterDateAuswertungDBVon(Date filterDateAuswertungDBVon) {
+		this.filterDateAuswertungDBVon = filterDateAuswertungDBVon;
+	}
+
+	public Date getFilterDateAuswertungDBBis() {
+		return filterDateAuswertungDBBis;
+	}
+
+	public void setFilterDateAuswertungDBBis(Date filterDateAuswertungDBBis) {
+		this.filterDateAuswertungDBBis = filterDateAuswertungDBBis;
+	}
 
 	private Integer saleCount = 1;
 	private String saleSerial;
@@ -106,25 +136,31 @@ public class ProductSearchBean {
 	public void setSaleDate(Date saleDate) {
 		this.saleDate = saleDate;
 	}
+
 	public void saveSale() {
 		serviceVerkauf.persistVerkaeufe(this.getSales());
 		this.setSales(new ArrayList<>());
 		this.info("Verkäufe erfolgreich gespeichert");
 	}
+
 	public void addSale() {
 		if (this.getSaleSerial() != null && !this.getSaleSerial().isEmpty()) {
 			Produkt p = serviceProdukt.getProduktBySerial(this.getSaleSerial());
-			if(p != null) {
+			if (p != null) {
 				Verkauf v = new Verkauf();
 				v.setCount(this.getSaleCount());
 				v.setProdukt(p);
 				v.setDate(this.getSaleDate());
 				sales.add(v);
+			} else {
+				info("Artikel " + this.getSaleSerial() + " konnte nicht gefunden werden");
 			}
 			saleCount = 1;
 			saleSerial = "";
 			saleDate = new Date(System.currentTimeMillis());
 			this.setSaleSerial("");
+		} else {
+			info("Bitte eine Seriennummer eingeben!");
 		}
 	}
 
@@ -350,7 +386,7 @@ public class ProductSearchBean {
 	}
 
 	public void filterAuswertungen() {
-		this.setTabIndex(1);
+		this.setTabIndex(TAB_INDEX_EVALUATION);
 		List<Auswertung> filteredList = new ArrayList<>();
 		List<Auswertung> list = serviceAuswertung.getAllAuswertungen();
 		if (this.getFilterDateAuswertungVon() != null && this.getFilterDateAuswertungBis() != null) {
@@ -378,7 +414,7 @@ public class ProductSearchBean {
 	}
 
 	public void filter() {
-		this.setTabIndex(0);
+		this.setTabIndex(TAB_INDEX_PRODUCTS);
 		List<Produkt> filteredProdukte = serviceProdukt.getProdukte();
 		Produkt selected = this.getSelectedProdukt();
 		List<Produkt> filteredByLiefernaten = new ArrayList<>();
@@ -515,7 +551,7 @@ public class ProductSearchBean {
 		this.setLieferanten(list);
 		this.setProdukte(getServiceProdukt().getProdukte());
 		this.setAuswertungen(serviceAuswertung.getAllAuswertungen());
-//		this.setSales(serviceVerkauf.getVerkaeufe());
+		// this.setSales(serviceVerkauf.getVerkaeufe());
 
 	}
 
@@ -540,11 +576,6 @@ public class ProductSearchBean {
 
 	public void warn(String id, String message) {
 		FacesContext.getCurrentInstance().addMessage(id, new FacesMessage(FacesMessage.SEVERITY_WARN, message, null));
-
-	}
-
-	public void info(String id, String message) {
-		FacesContext.getCurrentInstance().addMessage(id, new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
 
 	}
 
@@ -604,17 +635,21 @@ public class ProductSearchBean {
 	public void onSelectLieferant(Lieferant l, String typeOfSelection, String indexes) {
 		setSelectedLieferant(l);
 	}
+
 	public void onSelectSale(Verkauf v, String typeOfSelection, String indexes) {
 		setSelectedSale(v);
 	}
+
 	public void onDeselectLieferant(Lieferant l, String typeOfSelection, String indexes) {
 		setSelectedLieferant(null);
 	}
+
 	public void onDeselectSale(Verkauf v, String typeOfSelection, String indexes) {
 		setSelectedSale(null);
 	}
+
 	public void editProdukt() {
-		this.setTabIndex(0);
+		this.setTabIndex(TAB_INDEX_PRODUCTS);
 		if (this.getSelectedProdukt() != null) {
 			navigateToEditor(this.getSelectedProdukt());
 		} else {
@@ -624,7 +659,7 @@ public class ProductSearchBean {
 	}
 
 	public void editLieferant() {
-		this.setTabIndex(2);
+		this.setTabIndex(TAB_INDEX_SUPPLIERS);
 		if (this.getSelectedLieferant() != null) {
 			navigateToEditor(this.getSelectedLieferant());
 		} else {
@@ -639,7 +674,7 @@ public class ProductSearchBean {
 	}
 
 	public void createProdukt() {
-		this.setTabIndex(0);
+		this.setTabIndex(TAB_INDEX_PRODUCTS);
 		Produkt p = new Produkt();
 		p.setCounter(serviceProdukt.getProdukte().size());
 		produkte.add(p);
@@ -650,7 +685,7 @@ public class ProductSearchBean {
 	}
 
 	public void createLieferant() {
-		this.setTabIndex(2);
+		this.setTabIndex(TAB_INDEX_SUPPLIERS);
 		Lieferant l = new Lieferant();
 		lieferanten.add(l);
 		setSelectedLieferant(l);
@@ -697,7 +732,7 @@ public class ProductSearchBean {
 	}
 
 	public boolean deleteProdukt() {
-		this.setTabIndex(0);
+		this.setTabIndex(TAB_INDEX_PRODUCTS);
 		Produkt p = getSelectedProdukt();
 		if (p != null) {
 			produkte.remove(p);
@@ -710,7 +745,7 @@ public class ProductSearchBean {
 	}
 
 	public boolean deleteLieferant() {
-		this.setTabIndex(2);
+		this.setTabIndex(TAB_INDEX_SUPPLIERS);
 		Lieferant l = getSelectedLieferant();
 		if (l != null) {
 			lieferanten.remove(l);
@@ -721,8 +756,9 @@ public class ProductSearchBean {
 		}
 		return true;
 	}
+
 	public boolean deleteSale() {
-		this.setTabIndex(3);
+		this.setTabIndex(TAB_INDEX_EVALUATION);
 		Verkauf v = getSelectedSale();
 		if (v != null) {
 			sales.remove(v);
@@ -734,7 +770,7 @@ public class ProductSearchBean {
 	}
 
 	public void copyProdukt() {
-		this.setTabIndex(0);
+		this.setTabIndex(TAB_INDEX_PRODUCTS);
 		if (this.getSelectedProdukt() != null) {
 			Produkt copy = this.getSelectedProdukt().copy();
 			copy.buildSerialnumber(serviceProdukt.getProdukte().size());
@@ -768,7 +804,7 @@ public class ProductSearchBean {
 	}
 
 	public void deleteFileAuswertung() {
-		this.setTabIndex(1);
+		this.setTabIndex(TAB_INDEX_EVALUATION);
 		if (!this.getSelectedAuswertungen().isEmpty()) {
 			Iterator<Auswertung> it = this.getSelectedAuswertungen().iterator();
 			while (it.hasNext()) {
@@ -860,7 +896,7 @@ public class ProductSearchBean {
 	}
 
 	public String auswertenAll() {
-		this.setTabIndex(1);
+		this.setTabIndex(TAB_INDEX_EVALUATION);
 		this.getErgebnisse().clear();
 		ProduktLister lister = new ProduktLister();
 		Map<Produkt, Integer> result = lister.readFiles(this.getAuswertungen());
@@ -877,8 +913,59 @@ public class ProductSearchBean {
 		return null;
 	}
 
+	public String auswertenDB() {
+		this.setTabIndex(TAB_INDEX_EVALUATION);
+		List<Verkauf> filteredList = new ArrayList<>();
+		List<Verkauf> list = serviceVerkauf.getVerkaeufe();
+		if (this.getFilterDateAuswertungDBVon() != null && this.getFilterDateAuswertungDBBis() != null) {
+			if (this.getFilterDateAuswertungDBVon().before(this.getFilterDateAuswertungDBBis())
+					|| org.apache.commons.lang.time.DateUtils.isSameDay(this.getFilterDateAuswertungDBBis(),
+							this.getFilterDateAuswertungDBVon())) {
+				filteredList = list.stream()
+						.filter(p -> p.getDate().after(this.getFilterDateAuswertungDBVon())
+								|| org.apache.commons.lang.time.DateUtils.isSameDay(p.getDate(),
+										this.getFilterDateAuswertungDBVon()))
+						.collect(Collectors.toList());
+				filteredList = filteredList.stream()
+						.filter(p -> p.getDate().before(this.getFilterDateAuswertungDBBis())
+								|| org.apache.commons.lang.time.DateUtils.isSameDay(p.getDate(),
+										this.getFilterDateAuswertungDBBis()))
+						.collect(Collectors.toList());
+			} else {
+				info("Das von-Datum muss vor dem bis-Datum liegen!");
+			}
+		} else {
+			filteredList = list;
+		}
+		this.setErgebnisseDB(this.buidErgebnisse(filteredList));
+		return null;
+	}
+
+	private List<Ergebnis> buidErgebnisse(List<Verkauf> filteredList) {
+		List<Ergebnis> result = new ArrayList<>();
+		Map<String, List<Verkauf>> verkaufByProduct = filteredList.stream()
+				.collect(Collectors.groupingBy(Verkauf::getSerial));
+		Iterator<String> it = verkaufByProduct.keySet().iterator();
+		while (it.hasNext()) {
+			Ergebnis e = new Ergebnis();
+			result.add(e);
+			String key = it.next();
+			List<Verkauf> list = verkaufByProduct.get(key);
+			Iterator<Verkauf> itVerkauf = list.iterator();
+			while (itVerkauf.hasNext()) {
+				Verkauf v = itVerkauf.next();
+				e.setCount(e.getCount() + v.getCount());
+				if (e.getProdukt() == null) {
+					e.setProdukt(v.getProdukt());
+				}
+			}
+
+		}
+		return result;
+	}
+
 	public String auswerten() {
-		this.setTabIndex(1);
+		this.setTabIndex(TAB_INDEX_EVALUATION);
 		this.getErgebnisse().clear();
 		if (this.getSelectedAuswertungen().isEmpty()) {
 			FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", "Bitte eine Auswertung auswählen!");
@@ -914,7 +1001,7 @@ public class ProductSearchBean {
 	}
 
 	public String uploadAuswertung() {
-		this.setTabIndex(1);
+		this.setTabIndex(TAB_INDEX_EVALUATION);
 		if (fileAuswertung.getFileName() != null && !fileAuswertung.getFileName().isEmpty()) {
 			try {
 				byte[] bytes = IOUtils.toByteArray(fileAuswertung.getInputstream());
@@ -947,7 +1034,7 @@ public class ProductSearchBean {
 	}
 
 	public void fileUploadListenerAuswertung(FileUploadEvent e) {
-		this.setTabIndex(1);
+		this.setTabIndex(TAB_INDEX_EVALUATION);
 		// Get uploaded file from the FileUploadEvent
 		this.fileAuswertung = e.getFile();
 		// Print out the information of the file

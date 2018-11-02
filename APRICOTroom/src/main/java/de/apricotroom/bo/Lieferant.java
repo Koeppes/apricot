@@ -6,7 +6,7 @@ public class Lieferant {
 	@Id
 	private Long id;
 	private String name;
-	private int nr;
+	private Integer nr;
 
 	public Integer getNr() {
 		return nr;

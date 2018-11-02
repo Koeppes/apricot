@@ -25,6 +25,9 @@ public enum Farben {
 				result = f;
 			}
 		}
+		if(result == null) {
+			result = Farben.KEINE_AUSWAHL;
+		}
 		return result;
 	}
 }

@@ -18,6 +18,10 @@ public class Verkauf {
 		}
 		return "";
 	}
+	
+	public String getSerial() {
+		return this.getProdukt().getSerialnumber();
+	}
 
 	public void setId(Long id) {
 		this.id = id;

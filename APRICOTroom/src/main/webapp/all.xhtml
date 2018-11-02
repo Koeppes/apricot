@@ -12,11 +12,11 @@
 </h:head>
 
 <h:body>
-	<b:growl id="growl" globalOnly="true" showDetail="true"
-		severity="info,warn" />
 	<b:tabView active-index="#{productSearchBean.tabIndex}">
 		<b:tab title="Artikel">
 			<h:form id="productSearch">
+				<b:growl id="growlTabArtikel" globalOnly="true" showDetail="true"
+					severity="info,warn" />
 				<b:panel collapsible="false"
 					style="background-color:#F3D5B7;border-color:#F3D5B7"
 					title="Bearbeiten" />
@@ -91,10 +91,10 @@
 				<b:commandButton id="editButton"
 					disabled="#{productSearchBean.buttonsDisabled}"
 					actionListener="#{productSearchBean.editProdukt}"
-					value="Bearbeiten" update="growl" />
+					value="Bearbeiten" update="growlTabArtikel" />
 				<b:button onclick="$('.deleteDialog').modal('show')" value="Löschen" />
 				<b:modal title="Achtung" closable="false" closeOnEscape="true"
-					styleClass="deleteDialog" update="growl">
+					styleClass="deleteDialog" update="growlTabArtikel">
 					<p>Produkt löschen?</p>
 					<b:row>
 						<b:column>
@@ -110,7 +110,7 @@
 				</b:modal>
 				<b:commandButton actionListener="#{productSearchBean.copyProdukt}"
 					disabled="#{productSearchBean.buttonsDisabled}" id="copyButton"
-					update="growl" value="Kopieren" />
+					update="growlTabArtikel" value="Kopieren" />
 				<b:commandButton actionListener="#{productSearchBean.abmelden}"
 					value="Abmelden" update="@form" />
 				<p:separator />
@@ -128,7 +128,8 @@
 			</h:form>
 
 		</b:tab>
-		<b:tab title="Auswerten">
+		<!-- 
+		<b:tab title="Auswerten Excel">
 			<b:panel collapsible="false"
 				style="background-color:#F3D5B7;border-color:#F3D5B7"
 				title="Dateien" />
@@ -216,8 +217,12 @@
 					value="Abmelden" update="@form" />
 			</h:form>
 		</b:tab>
+		 -->
 		<b:tab title="Lieferanten">
 			<h:form>
+				<b:growl id="growlTabLieferanten" globalOnly="true"
+					showDetail="true" severity="info,warn" />
+
 				<b:panelGrid columns="1">
 					<b:dataTable id="dataTableLieferanten" excel="true" pdf="true"
 						print="true" value="#{productSearchBean.lieferanten}"
@@ -237,11 +242,11 @@
 						update="@form" process="dataTableLieferanten" />
 					<b:commandButton
 						actionListener="#{productSearchBean.editLieferant}"
-						value="Bearbeiten" update="growl" />
+						value="Bearbeiten" update="growlTabLieferanten" />
 					<b:button onclick="$('.deleteDialogLieferant').modal('show')"
 						value="Löschen" />
 					<b:modal title="Achtung" closable="false" closeOnEscape="true"
-						styleClass="deleteDialogLieferant" update="growl">
+						styleClass="deleteDialogLieferant" update="growlTabLieferanten">
 						<p>Lieferant löschen?</p>
 						<b:row>
 							<b:column>
@@ -260,50 +265,96 @@
 				</b:buttonGroup>
 			</h:form>
 		</b:tab>
-		<b:tab title="Scanner">
-			<b:container>
-				<h:form id="sale">
-					<b:defaultCommand target="addSaleButton" />
-					<b:focus target="saleSerial" />
-					<b:row>
-						<b:inputText id="saleSerial"
-							value="#{productSearchBean.saleSerial}" label="Seriennumer" />
-						<b:touchSpin id="spin1" col-md="3"
-							value="#{productSearchBean.saleCount}" min="1" max="100" step="1"
-							prefix="Anzahl" />
-						<b:dateTimePicker mode="toggle-icon" showWeek="true"
-							format="DD.MM.YYYY" value="#{productSearchBean.saleDate}"
-							label="Datum" label-col-sm="3" col-sm="6" />
-						<b:commandButton id="addSaleButton" actionListener="#{productSearchBean.addSale}"
-							value="Hinzufügen" update="@form" />
-					</b:row>
-					<b:row>
-						<b:panelGrid columns="1">
-							<b:dataTable id="dataTableSales" excel="true" pdf="true"
-								print="true" value="#{productSearchBean.sales}" var="sale"
-								onselect="ajax:productSearchBean.onSelectSale(sale, typeOfSelection, indexes);"
-								ondeselect="ajax:productSearchBean.onDeselectSale(sale, typeOfSelection, indexes);"
-								select="true" selectionMode="single">
-								<b:dataTableColumn label="Datum" styleClass="width:100px;"
-									value="#{sale.formattedDate}" />
-								<b:dataTableColumn label="Anzahl" styleClass="width:100px;"
-									value="#{sale.count}" />
-								<b:dataTableColumn label="Seriennummer"
-									value="#{sale.produkt.serialnumber}" />
-								<b:dataTableColumn label="Name"
-									value="#{sale.produkt.description}" />
-							</b:dataTable>
-						</b:panelGrid>
-						<b:commandButton actionListener="#{productSearchBean.deleteSale}"
-							value="Löschen" update="@form" />
-						<b:commandButton actionListener="#{productSearchBean.copySale}"
-							value="Kopieren" update="@form" />
-						<b:commandButton actionListener="#{productSearchBean.saveSale}"
-							value="Speichern" update="@form" />
-					</b:row>
-				</h:form>
-			</b:container>
+		<b:tab title="Verkäufe">
+			<h:form id="sale">
+				<b:growl id="growlTabArtikel" globalOnly="true" showDetail="true"
+					severity="info,warn" />
+				<b:defaultCommand target="addSaleButton" />
+				<b:focus target="saleSerial" />
+				<b:row>
+					<b:inputText id="saleSerial"
+						value="#{productSearchBean.saleSerial}" label="Seriennumer" />
+					<b:touchSpin id="spin1" col-md="3"
+						value="#{productSearchBean.saleCount}" min="1" max="100" step="1"
+						prefix="Anzahl" />
+					<b:dateTimePicker mode="toggle-icon" showWeek="true"
+						format="DD.MM.YYYY" value="#{productSearchBean.saleDate}"
+						label="Datum" label-col-sm="3" col-sm="6" />
+					<b:commandButton id="addSaleButton"
+						actionListener="#{productSearchBean.addSale}" value="Hinzufügen"
+						update="growlTabArtikel" />
+				</b:row>
+				<b:row>
+					<b:panelGrid columns="1">
+						<b:dataTable id="dataTableSales" excel="true" pdf="true"
+							print="true" value="#{productSearchBean.sales}" var="sale"
+							onselect="ajax:productSearchBean.onSelectSale(sale, typeOfSelection, indexes);"
+							ondeselect="ajax:productSearchBean.onDeselectSale(sale, typeOfSelection, indexes);"
+							select="true" selectionMode="single">
+							<b:dataTableColumn label="Datum" styleClass="width:100px;"
+								value="#{sale.formattedDate}" />
+							<b:dataTableColumn label="Anzahl" styleClass="width:100px;"
+								value="#{sale.count}" />
+							<b:dataTableColumn label="Seriennummer"
+								value="#{sale.produkt.serialnumber}" />
+							<b:dataTableColumn label="Name"
+								value="#{sale.produkt.description}" />
+						</b:dataTable>
+					</b:panelGrid>
+					<b:commandButton actionListener="#{productSearchBean.deleteSale}"
+						value="Löschen" update="@form" />
+					<b:commandButton actionListener="#{productSearchBean.copySale}"
+						value="Kopieren" update="@form" />
+					<b:commandButton actionListener="#{productSearchBean.saveSale}"
+						value="Speichern" update="@form" />
+				</b:row>
+			</h:form>
 		</b:tab>
+				<b:tab title="Auswerten">
+			<b:panel collapsible="false"
+				style="background-color:#F3D5B7;border-color:#F3D5B7"
+				title="Dateien" />
+			<h:form id="formAuswertungDB">
+				<b:messages id="messages" globalOnly="true" escape="false"
+					severity="error,fatal" />
+				<b:panelGrid columns="3">
+					<b:dateTimePicker mode="toggle-icon" showWeek="true"
+						format="DD.MM.YYYY"
+						value="#{productSearchBean.filterDateAuswertungDBVon}"
+						label="Datum von:" />
+					<b:dateTimePicker mode="toggle-icon" showWeek="true"
+						format="DD.MM.YYYY"
+						value="#{productSearchBean.filterDateAuswertungDBBis}"
+						label="Datum bis:" />
+				</b:panelGrid>
+				<b:buttonGroup id="buttonGroupAuswertung">
+					<b:commandButton styleClass="auswertenButton"
+						id="auswertenButtonDB"
+						actionListener="#{productSearchBean.auswertenDB}"
+						update="messages" value="Auswerten" />
+				</b:buttonGroup>
+				<p:separator />
+				<br />
+			</h:form>
+			<b:panel collapsible="false"
+				style="background-color:#F3D5B7;border-color:#F3D5B7"
+				title="Ergebnis" />
+			<h:form>
+				<b:dataTable id="dataTableErgebnisseDB" excel="true" pdf="true"
+					print="true" value="#{productSearchBean.ergebnisseDB}"
+					var="ergebnisDB" selectionMode="single">
+					<b:dataTableColumn label="Seriennummer" id="columnSerial"
+						value="#{ergebnisDB.produkt.serialnumber}" />
+					<b:dataTableColumn label="Beschreibung" id="columnDescription"
+						value="#{ergebnisDB.produkt.description}" />
+					<b:dataTableColumn label="Anzahl" id="columnCount"
+						value="#{ergebnisDB.count}" />
+				</b:dataTable>
+				<b:commandButton actionListener="#{productSearchBean.abmelden}"
+					value="Abmelden" update="@form" />
+			</h:form>
+		</b:tab>
+		
 	</b:tabView>
 </h:body>
 </html>

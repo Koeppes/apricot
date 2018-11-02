@@ -1,6 +1,7 @@
 package de.apricotroom.beans;
 
 import javax.annotation.PostConstruct;
+import javax.faces.application.FacesMessage;
 import javax.faces.application.NavigationHandler;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
@@ -37,10 +38,31 @@ public class LieferantEditorBean {
 	private ProductSearchBean searchBean;
 
 	public void save() {
+		boolean done = false;
 		if (this.getSelectedLieferant() != null) {
-			getServiceLieferant().persist(this.getSelectedLieferant());
+			if (!this.getSelectedLieferant().getName().isEmpty()) {
+				if (this.getSelectedLieferant().getNr() != null) {
+					if (this.getServiceLieferant().getLieferantByNr(this.getSelectedLieferant().getNr()) != null) {
+						getServiceLieferant().persist(this.getSelectedLieferant());
+						done = true;
+					} else {
+						info("Die Nr. ist bereits für einen anderen Lieferanten vergeben!");
+					}
+				} else {
+					info("Bitte eine Nr. für den Lieferanten vergeben!");
+				}
+			} else {
+				info("Bitte einen Namen für den Lieferanten vergeben!");
+			}
 		}
-		navigateBack("save");
+		if (done) {
+			navigateBack("save");
+		}
+	}
+
+	public void info(String message) {
+		FacesMessage success = new FacesMessage(FacesMessage.SEVERITY_INFO, "", message);
+		FacesContext.getCurrentInstance().addMessage(null, success);
 	}
 
 	public void cancel() {
