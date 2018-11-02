@@ -3,12 +3,11 @@ package de.apricotroom.tools;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -19,7 +18,6 @@ import de.apricotroom.bo.Edelsteine;
 import de.apricotroom.bo.Farben;
 import de.apricotroom.bo.Kategorien;
 import de.apricotroom.bo.Lieferant;
-import de.apricotroom.bo.Materialien;
 import de.apricotroom.bo.Produkt;
 import de.apricotroom.pers.JPAServiceLieferant;
 import de.apricotroom.pers.JPAServiceProdukt;
@@ -46,13 +44,22 @@ public class ProduktImporter {
 	}
 
 	public List<Produkt> readFile(String filename) {
+		FileInputStream excelFile = null;
 		List<Produkt> newProdukte = new ArrayList<>();
 		try {
-			FileInputStream excelFile = new FileInputStream(filename);
+			excelFile = new FileInputStream(filename);
 			Workbook workbook = new HSSFWorkbook(excelFile);
 			return this.readFile(workbook, newProdukte);
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			if(excelFile != null) {
+				try {
+					excelFile.close();
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+			}
 		}
 		return newProdukte;
 	}
