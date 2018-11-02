@@ -3,6 +3,7 @@ package de.apricotroom.tools;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -54,6 +55,24 @@ public class ProduktImporter {
 			e.printStackTrace();
 		}
 		return newProdukte;
+	}
+
+	public java.util.Date readDate(byte[] b) {
+		java.util.Date d = null;
+		try {
+			ByteArrayInputStream excelFile = new ByteArrayInputStream(b);
+			Workbook workbook = new HSSFWorkbook(excelFile);
+			Sheet sheetDate = workbook.getSheetAt(0);
+			Row row = sheetDate.getRow(0);
+			Cell c = row.getCell(3);
+			if (c != null) {
+				d = c.getDateCellValue();
+			}
+			workbook.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return d;
 	}
 
 	private List<Produkt> readFile(Workbook workbook, List<Produkt> newProdukte) throws IOException {
@@ -146,30 +165,6 @@ public class ProduktImporter {
 	private Lieferant readLieferant(List<Lieferant> lieferanten, String cellValue) {
 		Lieferant lief = lieferanten.stream().filter(l -> l.getName().equalsIgnoreCase(cellValue)).findFirst().get();
 		return lief;
-	}
-
-	private String readKategorie(String cell1Value) {
-		String result = null;
-		if (cell1Value != null && !cell1Value.isEmpty()) {
-			Optional<Kategorien> o = Arrays.asList(Kategorien.values()).stream()
-					.filter(e -> e.equals(Kategorien.of(cell1Value))).findFirst();
-			Kategorien k = o.get();
-			result = k.getIndex();
-
-		}
-		return result;
-
-	}
-
-	private String readMaterial(String cell2Value) {
-		String result = null;
-		if (cell2Value != null && !cell2Value.isEmpty()) {
-			Optional<Materialien> o = Arrays.asList(Materialien.values()).stream()
-					.filter(e -> e.equals(Materialien.of(cell2Value))).findFirst();
-			Materialien k = o.get();
-			result = k.getIndex();
-		}
-		return result;
 	}
 
 	private String readFarbe(String cell2Value) {

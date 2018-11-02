@@ -1,5 +1,7 @@
 package de.apricotroom.bo;
 
+import de.apricotroom.tools.BarCodeGenerator;
+
 public class Produkt {
 	private Long id;
 	private String name;
@@ -9,13 +11,32 @@ public class Produkt {
 	private Double salePrice;
 	private String serialnumber;
 	private int size;
-	private int length;
+	private String length;
 	private Lieferant lieferant;
 	private String kategorie;
 	private String farbe;
 	private String material;
 	private boolean generated;
+	private String barcodeImage;
+	public String getBarcodeImage() {
+		return barcodeImage;
+	}
+
+	public void setBarcodeImage(String barcodeImage) {
+		this.barcodeImage = barcodeImage;
+	}
+
+	public byte[] getBarcode() {
+		return barcode;
+	}
+
+	public void setBarcode(byte[] barcode) {
+		this.barcode = barcode;
+	}
+
 	private boolean imported;
+	private byte[] barcode;
+
 
 	public boolean isImported() {
 		return imported;
@@ -77,7 +98,9 @@ public class Produkt {
 	}
 
 	public void setFarbe(String farbe) {
-		this.farbe = farbe;
+		if (!"Keine Auswahl".equals(farbe)) {
+			this.farbe = farbe;
+		}
 		this.buildSerialnumber();
 	}
 
@@ -159,11 +182,11 @@ public class Produkt {
 		this.buildSerialnumber();
 	}
 
-	public int getLength() {
+	public String getLength() {
 		return length;
 	}
 
-	public void setLength(int length) {
+	public void setLength(String length) {
 		this.length = length;
 	}
 
@@ -190,6 +213,11 @@ public class Produkt {
 		copy.setSalePrice(p.getSalePrice());
 		copy.setSellingPrice(p.getSellingPrice());
 		copy.setSize(p.getSize());
+		copy.setGenerated(false);
+		copy.setMaterial(p.getMaterial());
+		copy.setKategorie(p.getKategorie());
+		copy.setFarbe(p.getFarbe());
+		copy.setGemstone(p.isGemstone());
 		return copy;
 	}
 
@@ -206,10 +234,9 @@ public class Produkt {
 	}
 
 	public void buildSerialnumber() {
-		if (this.isImported()) {
+		if (!this.isImported() || this.getId() == null) {
 			this.buildSerialnumber(counter);
 		}
-
 	}
 
 	public void buildSerialnumber(int newCounter) {

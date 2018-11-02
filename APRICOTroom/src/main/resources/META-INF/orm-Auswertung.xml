@@ -10,6 +10,9 @@
 			</id>
 			<basic name="filename" />
 			<basic name="data" />
+			<basic name="date" />
+			<transient name="formattedDate" />
+			
 		</attributes>
 	</entity>
 </entity-mappings>
