@@ -151,7 +151,7 @@ public class AuswertungBean {
 			e.setCount(result.get(p));
 			addErgebnisse(e);
 		}
-		this.setSelectedAuswertungen(new ArrayList<>());
+		this.setSelectedAuswertungen(new ArrayList<Auswertung>());
 		return null;
 	}
 
@@ -171,7 +171,7 @@ public class AuswertungBean {
 				e.setCount(result.get(p));
 				addErgebnisse(e);
 			}
-			this.setSelectedAuswertungen(new ArrayList<>());
+			this.setSelectedAuswertungen(new ArrayList<Auswertung>());
 		}
 		return null;
 	}
